@@ -278,6 +278,7 @@ enum NashiApplication {
             let panel=ToolPanel(contentRect:NSRect(x:0,y:0,width:760,height:520),styleMask:[.borderless,.closable],backing:.buffered,defer:false)
             panel.title="Welcome to Nashi";panel.isReleasedWhenClosed=false;panel.isOpaque=false;panel.backgroundColor = .clear;panel.hasShadow=true;panel.hidesOnDeactivate=false
             let view=WelcomeView(onDone:{ [weak self] in self?.finishWelcome() },onClose:{ [weak self] in self?.finishWelcome() },onMinimize:{ [weak self] in self?.welcome?.orderOut(nil) })
+            panel.onPerformClose={ [weak self] in self?.finishWelcome() }
             panel.contentView=NSHostingView(rootView:view.nashiLanguage());panel.center();welcome=panel
         }
         welcome?.makeKeyAndOrderFront(nil);NSApp.activate(ignoringOtherApps:true)
@@ -351,6 +352,11 @@ extension AppDelegate:NSMenuItemValidation {
 final class ToolPanel:NSPanel {
     override var canBecomeKey:Bool { true }
     override var canBecomeMain:Bool { true }
-    // A borderless panel has no standard close button for AppKit to click.
-    override func performClose(_ sender:Any?) { close() }
+    // A borderless panel has no standard close button for AppKit to click or to validate
+    // Close Window against. An owner with its own close flow (Welcome) takes it through that flow.
+    var onPerformClose:(()->Void)?
+    override func performClose(_ sender:Any?) { if let onPerformClose { onPerformClose() } else { close() } }
+    override func validateUserInterfaceItem(_ item:NSValidatedUserInterfaceItem)->Bool {
+        item.action == #selector(performClose(_:)) ? styleMask.contains(.closable):super.validateUserInterfaceItem(item)
+    }
 }
