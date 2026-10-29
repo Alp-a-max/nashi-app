@@ -839,7 +839,10 @@ struct ToolEditor:View {
     func hex(_ color:Color)->String { guard let rgb=NSColor(color).usingColorSpace(.sRGB) else{return "#FFFFFF"};return String(format:"#%02X%02X%02X",Int(rgb.redComponent*255),Int(rgb.greenComponent*255),Int(rgb.blueComponent*255)) }
     func timeLabel(_ time:Double)->String {
         guard time.isFinite,time>=0,time<Double(Int.max) else { return "—" }
-        return String(format:"%02ld:%06.3f",Int(time)/60,time.truncatingRemainder(dividingBy:60))
+        // Round to the displayed millisecond first so 59.9996 carries into the minute.
+        let rounded=(time*1000).rounded()/1000
+        guard rounded<Double(Int.max) else { return "—" }
+        return String(format:"%02ld:%06.3f",Int(rounded)/60,rounded.truncatingRemainder(dividingBy:60))
     }
 }
 
