@@ -290,7 +290,9 @@ enum FloatShelfViewMode:Int { case icons,list }
         for offset in items.indices {
             let index=(start+offset)%items.count
             if items[index].url.lastPathComponent.lowercased().hasPrefix(typeBuffer) {
-                collection.selectItems(at:[IndexPath(item:index,section:0)],scrollPosition:.centeredVertically);return true
+                let path=IndexPath(item:index,section:0)
+                collection.selectionIndexPaths=[path];collection.scrollToItems(at:[path],scrollPosition:.centeredVertically)
+                updateLabels();updatePreviewIfVisible();return true
             }
         }
         return !items.isEmpty
