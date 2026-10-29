@@ -127,4 +127,21 @@ enum DocumentText {
         for (entity, value) in [("&nbsp;", " "), ("&lt;", "<"), ("&gt;", ">"), ("&quot;", "\""), ("&apos;", "'"), ("&amp;", "&")] { result = result.replacingOccurrences(of: entity, with: value) }
         return result
     }
+    /// Reports whether XML data declares entities in its DTD. Only the prolog
+    /// is read: parsing stops at the root element, before any expansion, and
+    /// the parser detects UTF-16 itself, unlike a UTF-8 text search.
+    static func declaresXMLEntities(_ data: Data) -> Bool {
+        final class Gate: NSObject, XMLParserDelegate {
+            var declared = false
+            func parser(_ parser: XMLParser, foundInternalEntityDeclarationWithName name: String, value: String?) { declared = true; parser.abortParsing() }
+            func parser(_ parser: XMLParser, foundExternalEntityDeclarationWithName name: String, publicID: String?, systemID: String?) { declared = true; parser.abortParsing() }
+            func parser(_ parser: XMLParser, foundUnparsedEntityDeclarationWithName name: String, publicID: String?, systemID: String?, notationName: String?) { declared = true; parser.abortParsing() }
+            func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName: String?, attributes: [String: String] = [:]) { parser.abortParsing() }
+        }
+        let parser = XMLParser(data: data), gate = Gate()
+        parser.shouldResolveExternalEntities = false
+        parser.delegate = gate
+        _ = parser.parse()
+        return gate.declared
+    }
 }
