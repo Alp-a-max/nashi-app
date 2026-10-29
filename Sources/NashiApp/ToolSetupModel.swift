@@ -31,7 +31,7 @@ import NashiCore
         refresh()
         let groups = status.missing.filter { group == nil || $0 == group }
         guard !groups.isEmpty else { return }
-        working = true; fraction = nil; token = CancellationToken(); onWorkingChange(true)
+        working = true; fraction = nil; message = "Starting download…"; token = CancellationToken(); onWorkingChange(true)
         let currentToken = token
         task = Task {
             defer { status = probe(); working = false; onWorkingChange(false); task = nil; NotificationCenter.default.post(name:.toolSetupChanged,object:nil) }
