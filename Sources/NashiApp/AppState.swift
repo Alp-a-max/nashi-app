@@ -141,7 +141,9 @@ struct JobRecord:Codable,Identifiable {
                 do { for source in urls {
                     var target=directory.appendingPathComponent(source.lastPathComponent)
                     if target.standardizedFileURL == source.standardizedFileURL { continue }
-                    if FileManager.default.fileExists(atPath:target.path) { target=OutputFiles.unique(for:source,extension:source.pathExtension,directory:directory) }
+                    // Same names as OutputFiles.unique, but attributesOfItem does not follow links, so a dangling link also takes a name.
+                    var index=2
+                    while (try? FileManager.default.attributesOfItem(atPath:target.path)) != nil { target=directory.appendingPathComponent("\(source.deletingPathExtension().lastPathComponent) \(index)").appendingPathExtension(source.pathExtension.lowercased());index+=1 }
                     try FileManager.default.moveItem(at:source,to:target);moved[source]=target
                 };reportSuccess(.action("Files moved.",files:urls.map{moved[$0] ?? $0})) } catch { self.error=error.localizedDescription }
                 inputs=inputs.map{moved[$0] ?? $0}
