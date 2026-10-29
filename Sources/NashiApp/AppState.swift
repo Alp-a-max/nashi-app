@@ -140,7 +140,7 @@ struct JobRecord:Codable,Identifiable {
                 var moved:[URL:URL]=[:]
                 do { for source in urls {
                     var target=directory.appendingPathComponent(source.lastPathComponent)
-                    if target.standardizedFileURL == source.standardizedFileURL { continue }
+                    if target.standardizedFileURL == source.standardizedFileURL || sameFolder(source.deletingLastPathComponent(),directory) { continue }
                     if FileManager.default.fileExists(atPath:target.path) { target=OutputFiles.unique(for:source,extension:source.pathExtension,directory:directory) }
                     try FileManager.default.moveItem(at:source,to:target);moved[source]=target
                 };reportSuccess(.action("Files moved.",files:urls.map{moved[$0] ?? $0})) } catch { self.error=error.localizedDescription }
@@ -176,6 +176,13 @@ struct JobRecord:Codable,Identifiable {
         if let data=try? JSONEncoder().encode(history) { historyDefaults.set(data,forKey:"history") }
         reportSuccess(.filesReady(files))
     }
+}
+
+// Compares folder identity, so a symlinked path or a missing trailing slash still matches.
+private func sameFolder(_ a:URL,_ b:URL)->Bool {
+    guard let x=try? a.resolvingSymlinksInPath().resourceValues(forKeys:[.fileResourceIdentifierKey]).fileResourceIdentifier,
+          let y=try? b.resolvingSymlinksInPath().resourceValues(forKeys:[.fileResourceIdentifierKey]).fileResourceIdentifier else { return false }
+    return x.isEqual(y)
 }
 
 private func withGrantedFolderAccess<T>(_ urls:[URL],_ action:() throws -> T) throws -> T {
