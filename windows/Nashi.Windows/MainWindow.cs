@@ -118,7 +118,9 @@ public sealed partial class MainWindow:Window
     public static Button Button(string title,Action action){var button=L10n.Content(new Button{Content=title});button.Click+=(_,_)=>action();return button;}
     internal static Button Primary(string title,Action action){var button=Button(title,action);button.Background=Theme.Primary;button.Foreground=new SolidColorBrush(Color.FromRgb(43,54,28));return button;}
     public static void OpenUrl(string url)=>Process.Start(new ProcessStartInfo(url){UseShellExecute=true});
-    public static void Reveal(string path){var full=Path.GetFullPath(path);if(!File.Exists(full)&&!Directory.Exists(full)){var parent=Path.GetDirectoryName(full);if(parent is null||!Directory.Exists(parent))return;full=parent;Process.Start(new ProcessStartInfo("explorer.exe"){UseShellExecute=false,Arguments="\""+full+"\""});return;}Process.Start(new ProcessStartInfo("explorer.exe"){UseShellExecute=false,Arguments="/select,\""+full+"\""});}
+    public static void Reveal(string path){var full=Path.GetFullPath(path);if(!File.Exists(full)&&!Directory.Exists(full)){var parent=Path.GetDirectoryName(full);if(parent is null||!Directory.Exists(parent))return;full=parent;Process.Start(new ProcessStartInfo("explorer.exe"){UseShellExecute=false,Arguments=Quoted(full)});return;}Process.Start(new ProcessStartInfo("explorer.exe"){UseShellExecute=false,Arguments="/select,"+Quoted(full)});}
+    // One argument for explorer.exe: a trailing backslash (a drive root) must be doubled or it escapes the closing quote.
+    private static string Quoted(string path)=>"\""+path+(path.EndsWith('\\')?"\\":"")+"\"";
     private void Choose(){if(busy)return;var picker=new OpenFileDialog{Multiselect=true,Title=L10n.Text("Choose files for Nashi")};if(picker.ShowDialog(this)==true){Add(picker.FileNames);ShowLibrary(false);}}
     private void Add(IEnumerable<string> paths){foreach(var path in paths.Where(p=>File.Exists(p)||Directory.Exists(p))){var full=Path.GetFullPath(path);if(!files.Contains(full))files.Add(full);}Refresh();}
     internal void ShowLibrary(bool visible)
