@@ -685,11 +685,14 @@ public enum MediaEngine {
         return (Int(rect.x), Int(rect.y), Int(rect.width), Int(rect.height))
     }
     private static func redactionPixelRect(_ rect: EditRect, width: Int, height: Int) throws -> (x: Int, y: Int, w: Int, h: Int) {
-        _ = try pixelRect(rect,width:width,height:height)
+        // Redaction areas only need a positive size: the canvas keeps thin drags and
+        // 1 px resizes, and rejecting one area would fail the whole export.
+        guard [rect.x, rect.y, rect.width, rect.height].allSatisfy(\.isFinite), rect.x >= 0, rect.y >= 0, rect.width > 0, rect.height > 0, rect.x + rect.width <= Double(width) + 0.01, rect.y + rect.height <= Double(height) + 0.01 else { throw NashiError.invalidInput("Choose a rectangle inside the video.") }
         // Cover every pixel touched by the selection, matching image redaction.
         // Truncating origin and size separately can leave the far edge visible.
         let x=Int(floor(rect.x)),y=Int(floor(rect.y))
         let right=min(width,Int(ceil(rect.x+rect.width))),bottom=min(height,Int(ceil(rect.y+rect.height)))
+        guard right>x,bottom>y else { throw NashiError.invalidInput("Choose a rectangle inside the video.") }
         return (x,y,right-x,bottom-y)
     }
     private static func audioExtension(_ input: URL) -> String { let ext = input.pathExtension.lowercased(); return audioFormats.contains(ext) ? ext : "m4a" }
