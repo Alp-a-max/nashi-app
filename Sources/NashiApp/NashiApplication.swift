@@ -255,6 +255,8 @@ enum NashiApplication {
     }
     func applicationWillTerminate(_ notification:Notification) {
         windowManagement?.stop()
+        // Previews and file inspection don't block quitting; their ffmpeg/ffprobe must not outlive Nashi.
+        ProcessRunner.terminateAll()
         if let downloadHotKey { UnregisterEventHotKey(downloadHotKey) }
         if let downloadHotKeyHandler { RemoveEventHandler(downloadHotKeyHandler) }
     }
