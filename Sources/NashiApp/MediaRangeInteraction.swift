@@ -123,7 +123,8 @@ struct MediaRangeInteraction: NSViewRepresentable {
         func endpointBounds(index:Int,start:Bool)->ClosedRange<Double>? {
             guard isEditableRange(index) else{return nil}
             let range=ranges[index],minimum=min(0.02,duration)
-            return start ? 0...max(0,range.end-minimum):min(duration,range.start+minimum)...duration
+            // A range already shorter than the minimum keeps its current edge reachable.
+            return start ? 0...max(0,range.end-minimum,range.start):min(duration,range.start+minimum,range.end)...duration
         }
         @discardableResult func setEndpoint(index:Int,start:Bool,value:Double)->Bool {
             guard canEditRange(index),value.isFinite,let limits=endpointBounds(index:index,start:start) else{return false}
