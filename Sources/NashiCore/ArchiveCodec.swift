@@ -15,7 +15,10 @@ enum ArchiveCodec {
         let a = try api.get()
         guard let reader = a.readNew() else { throw NashiError.failed("Could not initialize the archive reader.") }
         defer { _ = a.readFree(reader) }
-        try a.check(a.readSupportFilters(reader), handle: reader)
+        // Only in-process decompressors: other filters launch programs from PATH.
+        for filter in [a.readSupportGzip, a.readSupportBzip2, a.readSupportXz, a.readSupportLzma, a.readSupportCompress] {
+            try a.check(filter(reader), handle: reader)
+        }
         let gzip = ["gz", "gzip"].contains(input.pathExtension.lowercased())
         if gzip {
             let prefix = try Data(contentsOf: input, options: .mappedIfSafe).prefix(2)
@@ -288,7 +291,11 @@ enum ArchiveCodec {
             return unsafeBitCast(pointer, to: type)
         }
         var readNew: New { symbol("archive_read_new", New.self) }
-        var readSupportFilters: Call { symbol("archive_read_support_filter_all", Call.self) }
+        var readSupportGzip: Call { symbol("archive_read_support_filter_gzip", Call.self) }
+        var readSupportBzip2: Call { symbol("archive_read_support_filter_bzip2", Call.self) }
+        var readSupportXz: Call { symbol("archive_read_support_filter_xz", Call.self) }
+        var readSupportLzma: Call { symbol("archive_read_support_filter_lzma", Call.self) }
+        var readSupportCompress: Call { symbol("archive_read_support_filter_compress", Call.self) }
         var readSupportFormats: Call { symbol("archive_read_support_format_all", Call.self) }
         var readSupportRaw: Call { symbol("archive_read_support_format_raw", Call.self) }
         var readSupportTar: Call { symbol("archive_read_support_format_tar", Call.self) }
