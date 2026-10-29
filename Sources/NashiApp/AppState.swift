@@ -179,11 +179,7 @@ struct JobRecord:Codable,Identifiable {
 }
 
 private func withGrantedFolderAccess<T>(_ urls:[URL],_ action:() throws -> T) throws -> T {
-    func acquire(_ index:Int) throws -> T {
-        guard index<urls.count else { return try action() }
-        return try FolderAccessPreferences.withAccess(to:urls[index]) { try acquire(index+1) }
-    }
-    return try acquire(0)
+    try FolderAccessPreferences.withAccess(to:urls,action)
 }
 
 extension AppState:NSSharingServiceDelegate {
