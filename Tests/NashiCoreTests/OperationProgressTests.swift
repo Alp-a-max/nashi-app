@@ -13,6 +13,12 @@ final class OperationProgressTests:XCTestCase {
         for chunk in ["out_ti","me_us=1000000\nframe=1\nout_time_us=", "5000000\nout_time_us=2000000\nout_time_us=N/A\n", "out_time_us=nan\nout_time_us=-4\nout_time_us=20000000\nprogress=end\n"] { parser.append(Data(chunk.utf8)) }
         XCTAssertEqual(events.values.map(\.0),[0.1,0.5,0.995])
     }
+    func testDiscardedOverlongLineTailIsNotParsedAsProgress() {
+        let events=Events(),parser=FFmpegProgressParser(duration:10,progress:{ events.add($0,$1) })
+        parser.append(Data(String(repeating:"x",count:20_000).utf8))
+        parser.append(Data("out_time_us=9000000\nout_time_us=1000000\n".utf8))
+        XCTAssertEqual(events.values.map(\.0),[0.1])
+    }
     func testUnknownDurationAndNestedScopesNeverInventPercentage() {
         for duration in [Double?.none,0,-1,.infinity,.nan] {
             let events=Events(),parser=FFmpegProgressParser(duration:duration,progress:{ events.add($0,$1) })
