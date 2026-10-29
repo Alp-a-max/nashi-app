@@ -382,7 +382,9 @@ public enum MediaEngine {
             let color = try ffmpegColor(options.backgroundColor)
             let out = try outputURL(input, ext: "mp4", suffix: " Visualization", options: options)
             let filter = "scale=\(w):\(h):force_original_aspect_ratio=decrease,pad=\(w):\(h):(ow-iw)/2:(oh-ih)/2:color=\(color),setsar=1"
-            try render(["-loop", "1", "-framerate", "30", "-i", image.path, "-i", input.path, "-map", "0:v:0", "-map", "1:a:0", "-vf", filter, "-t", decimal(info.duration), "-shortest"] + videoEncoding("mp4", quality: options.quality, sourceAudio: info.audio), to: out, token: token, duration: info.duration, progress: progress)
+            // Input options apply only to the next -i, so each input needs its own whitelist.
+            let localOnly = ["-protocol_whitelist", "file,pipe,crypto,data"]
+            try render(localOnly + ["-loop", "1", "-framerate", "30", "-i", image.path] + localOnly + ["-i", input.path, "-map", "0:v:0", "-map", "1:a:0", "-vf", filter, "-t", decimal(info.duration), "-shortest"] + videoEncoding("mp4", quality: options.quality, sourceAudio: info.audio), to: out, token: token, duration: info.duration, progress: progress)
             return [out]
         }
         let visual: String
