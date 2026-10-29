@@ -243,7 +243,7 @@ public enum PDFEngine {
     }
     public static func uniformWidth(_ document:PDFDocument,token:CancellationToken = .init()) throws -> PDFDocument {
         let pages=(0..<document.pageCount).compactMap{document.page(at:$0)}
-        func displayedSize(_ page:PDFPage)->CGSize { let b=page.bounds(for:.mediaBox);return abs(page.rotation)%180==90 ? CGSize(width:b.height,height:b.width):b.size }
+        func displayedSize(_ page:PDFPage)->CGSize { let b=page.bounds(for:.cropBox);return abs(page.rotation)%180==90 ? CGSize(width:b.height,height:b.width):b.size }
         guard let narrowest=pages.map({displayedSize($0).width}).min(),narrowest>0 else { throw NashiError.invalidInput("The PDF has no valid page sizes.") }
         let data=NSMutableData();guard let consumer=CGDataConsumer(data:data),let context=CGContext(consumer:consumer,mediaBox:nil,nil) else { throw NashiError.failed("Could not scale PDF pages.") }
         for page in pages {
@@ -252,7 +252,7 @@ public enum PDFEngine {
             let boxData=Data(bytes:&box,count:MemoryLayout<CGRect>.size)
             context.beginPDFPage([kCGPDFContextMediaBox:boxData] as CFDictionary)
             let rotation=Int32(page.rotation)-Int32(ref.rotationAngle)
-            let transform=ref.getDrawingTransform(.mediaBox,rect:box,rotate:rotation,preserveAspectRatio:true)
+            let transform=ref.getDrawingTransform(.cropBox,rect:box,rotate:rotation,preserveAspectRatio:true)
             context.concatenate(transform);context.drawPDFPage(ref)
             for annotation in page.annotations { annotation.draw(with:.mediaBox,in:context) }
             context.endPDFPage()
