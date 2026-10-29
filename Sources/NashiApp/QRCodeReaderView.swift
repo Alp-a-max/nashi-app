@@ -31,12 +31,12 @@ import NashiCore
     }
     func copy(_ result:QRCodeMatch) {
         NSPasteboard.general.clearContents()
-        if NSPasteboard.general.setString(result.text,forType:.string) { copied.insert(result.id);onSuccess(SuccessNotice(title:"QR code copied.",detail:"Ready to paste.")) }
+        if NSPasteboard.general.setString(result.text,forType:.string) { copied=[result.id];copiedAll=false;onSuccess(SuccessNotice(title:"QR code copied.",detail:"Ready to paste.")) }
         else { error="Could not copy the QR code." }
     }
     func copyAll() {
         NSPasteboard.general.clearContents()
-        if NSPasteboard.general.setString(report.results.map(\.text).joined(separator:"\n"),forType:.string) { copiedAll=true;onSuccess(SuccessNotice(title:"QR codes copied.",detail:"\(report.results.count) ready to paste.")) }
+        if NSPasteboard.general.setString(report.results.map(\.text).joined(separator:"\n"),forType:.string) { copied=[];copiedAll=true;onSuccess(SuccessNotice(title:"QR codes copied.",detail:"\(report.results.count) ready to paste.")) }
         else { error="Could not copy the QR codes." }
     }
     func saveReport() {
