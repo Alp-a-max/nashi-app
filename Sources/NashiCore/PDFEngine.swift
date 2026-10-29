@@ -124,12 +124,12 @@ public enum PDFEngine {
                     try token.check();let compressed=PDFDocument()
                     for n in 0..<pdf.pageCount {
                         try token.check();progress(Double(n)/Double(pdf.pageCount),"Compressing PDF · attempt \(attempt+1) · page \(n+1) of \(pdf.pageCount)")
-                        guard let page=pdf.page(at:n) else { continue };let bounds=page.bounds(for:.mediaBox)
-                        let thumb=page.thumbnail(of:NSSize(width:bounds.width*dpi/72,height:bounds.height*dpi/72),for:.mediaBox)
+                        guard let page=pdf.page(at:n) else { continue };let bounds=page.bounds(for:.cropBox)
+                        let thumb=page.thumbnail(of:NSSize(width:bounds.width*dpi/72,height:bounds.height*dpi/72),for:.cropBox)
                         guard let cg=thumb.cgImage(forProposedRect:nil,context:nil,hints:nil) else { continue }
                         let bitmap=NSBitmapImageRep(cgImage:cg)
                         guard let data=bitmap.representation(using:.jpeg,properties:[.compressionFactor:quality]),let img=NSImage(data:data),let result=PDFPage(image:img) else { continue }
-                        result.setBounds(bounds,for:.mediaBox);compressed.insert(result,at:compressed.pageCount)
+                        result.setBounds(CGRect(origin:.zero,size:bounds.size),for:.mediaBox);compressed.insert(result,at:compressed.pageCount)
                     }
                     wrote=true;guard compressed.write(to:output) else { throw NashiError.failed("Could not compress PDF.") }
                     let bytes=(try FileManager.default.attributesOfItem(atPath:output.path)[.size] as? NSNumber)?.int64Value ?? 0
