@@ -93,6 +93,9 @@ internal static class ParityChecks
         using(var model=System.Text.Json.JsonDocument.Parse(System.Text.Json.JsonSerializer.Serialize(OfficeDocuments.ReadDocx(docx)))){var html=OfficeDocuments.ModelHtml(model.RootElement);check(html.Contains("font-weight:bold")&&html.Contains("font-size:18pt")&&html.Contains("font-style:italic")&&html.Contains("text-align:center"),"Pages interchange lost inherited typography or alignment");check(html.Contains("href=\"https://example.com/pear\"")&&html.Contains("Fruit header")&&html.Contains("size:612pt 792pt"),"Pages interchange lost hyperlinks, header or page dimensions");}
         var srt="1\r\n00:00:01,005 --> 00:00:02,230\r\n<b>Türkçe 🍐</b>\r\n\r\n2\r\n00:00:03,000 --> 00:00:04,000\r\nSecond line\r\n";
         var vtt=SubtitleCodec.Convert(srt,"vtt");check(vtt.StartsWith("WEBVTT",StringComparison.Ordinal)&&vtt.Contains("00:00:01.005"),"SRT/VTT timestamps changed");check(SubtitleCodec.Parse(SubtitleCodec.Convert(vtt,"srt")).Length==2,"Subtitle round trip lost cues");check(SubtitleCodec.Convert(vtt,"txt").Contains("Türkçe 🍐")&&!SubtitleCodec.Convert(vtt,"txt").Contains("<b>"),"Subtitle plain text failed");
+        var encodedVtt="WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nTom &amp; Jerry\n\n";
+        var decodedSrt=SubtitleCodec.Convert(encodedVtt,"srt");
+        check(decodedSrt.Contains("Tom & Jerry",StringComparison.Ordinal)&&!decodedSrt.Contains("&amp;",StringComparison.Ordinal),"WebVTT character references leaked into SRT output");
         try{SubtitleCodec.Parse("00:00:02.000 --> 00:00:01.000\ninvalid");throw new Exception("Reversed subtitle accepted");}catch(InvalidDataException){check(true,"Subtitle validation");}
         var input=Path.Combine(root,"Archive source.txt");File.WriteAllText(input,"Türkçe 🍐 retained");var zip=DocumentEngine.Zip([input],root);
         foreach(var format in new[]{"tar","gz","zip"})

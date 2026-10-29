@@ -36,6 +36,14 @@ final class DocumentAuditRegressionTests: XCTestCase {
         XCTAssertTrue(result.contains("00:00:01.250 --> 00:00:02.500\nCafé — résumé."))
     }
 
+    func testWebVTTEntitiesRenderAsVisibleTextInSRT() throws {
+        let source = "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nTom &amp; Jerry\n\n"
+        let input = try fixture("Entities.vtt", data: Data(source.utf8))
+        let srt = try SubtitleCodec.convert(input, to: "srt", token: .init())
+        XCTAssertTrue(srt.contains("Tom & Jerry"))
+        XCTAssertFalse(srt.contains("&amp;"))
+    }
+
     func testUTF16BOMAndBOMLessTextRetainUnicode() throws {
         let text = "Nashi Şişli — café\n"
         let encodings: [(String, Data)] = [
