@@ -77,6 +77,7 @@ final class HTMLToPDFTests: XCTestCase {
         let outside = root.appendingPathComponent("outside.png")
         try Self.png(255, 0, 255).write(to: outside)
         try FileManager.default.createSymbolicLink(at: site.appendingPathComponent("assets/linked.png"), withDestinationURL: outside)
+        try "Sibling secret marker".write(to: site.appendingPathComponent("secret.txt"), atomically: true, encoding: .utf8)
         try "@import url('\(remote)/nested.css'); p { background-image: url('\(remote)/nested.png') }".write(to: site.appendingPathComponent("local.css"), atomically: true, encoding: .utf8)
         let input = site.appendingPathComponent("Probe.html")
         try """
@@ -92,6 +93,9 @@ final class HTMLToPDFTests: XCTestCase {
         const frame = document.body.appendChild(document.createElement('iframe'));
         report('peer ' + typeof RTCPeerConnection + ', frame peer ' + typeof frame.contentWindow.RTCPeerConnection + ', camera ' + typeof navigator.mediaDevices + ', location ' + typeof navigator.geolocation);
         fetch('\(remote)/fetch').catch(() => {}); navigator.sendBeacon('\(remote)/beacon', 'x');
+        // Files beside the page may be shown by markup, but scripts may not read them into the PDF.
+        fetch('secret.txt').then(response => response.text()).then(report, () => {});
+        const sibling = new XMLHttpRequest(); sibling.open('GET', 'secret.txt', false); try { sibling.send(); report(sibling.responseText) } catch {}
         const request = new XMLHttpRequest(); request.open('GET', '\(remote)/xhr'); request.send();
         try { new WebSocket('ws://127.0.0.1:\(probe.port)/socket') } catch {}
         try { new EventSource('\(remote)/events') } catch {}
@@ -110,11 +114,12 @@ final class HTMLToPDFTests: XCTestCase {
         let text = try XCTUnwrap(pdf.string)
         XCTAssertTrue(text.contains("Offline probe"))
         XCTAssertTrue(text.contains("peer undefined, frame peer undefined, camera undefined, location undefined"), text)
+        XCTAssertFalse(text.contains("Sibling secret marker"), "A page script read a file beside the page.")
         for index in 0..<pdf.pageCount { XCTAssertEqual(try Self.pixels(near: (255, 0, 255), on: XCTUnwrap(pdf.page(at: index))), 0, "A file outside the page's folder was rendered.") }
         XCTAssertNil(try Data(contentsOf: output).range(of: Data("file:".utf8)))
     }
 
-    func testCancellationAndPageLimitPublishNothing() throws {
+    func testCancellationAndPageLimitsPublishNothing() throws {
         let long = site.appendingPathComponent("Long.html")
         try ("<!doctype html><meta charset=\"utf-8\">" + String(repeating: "<p>" + String(repeating: "Nashi cancellation fixture. ", count: 60) + "</p>", count: 600)).write(to: long, atomically: true, encoding: .utf8)
         let token = CancellationToken()
@@ -127,8 +132,14 @@ final class HTMLToPDFTests: XCTestCase {
         XCTAssertThrowsError(try ConversionEngine.run(.init(inputs: [tall], operation: .convert("pdf")))) { error in
             XCTAssertEqual(error.localizedDescription, "This HTML file would need more than 1,000 PDF pages.")
         }
+        // A short page can still force more than 1,000 pages with page breaks.
+        let breaks = site.appendingPathComponent("Breaks.html")
+        try ("<!doctype html>" + String(repeating: "<p style=\"break-before:page\">Page</p><p style=\"page-break-before:always\">Page</p>", count: 520)).write(to: breaks, atomically: true, encoding: .utf8)
+        XCTAssertThrowsError(try ConversionEngine.run(.init(inputs: [breaks], operation: .convert("pdf")))) { error in
+            XCTAssertEqual(error.localizedDescription, "This HTML file would need more than 1,000 PDF pages.")
+        }
         _ = wait(seconds: 2) { false }
-        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: site.path).sorted(), ["Long.html", "Tall.html", "assets"])
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: site.path).sorted(), ["Breaks.html", "Long.html", "Tall.html", "assets"])
     }
 
     /// Keeps the main run loop turning, as WebKit and URLSession callbacks need it.

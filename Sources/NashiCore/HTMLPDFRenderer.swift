@@ -9,6 +9,7 @@ import WebKit
 /// blocked before it starts.
 enum HTMLPDFRenderer {
     static let scheme = "nashi-html"
+    static let tooManyPages = NashiError.invalidInput("This HTML file would need more than 1,000 PDF pages.")
 
     static func render(_ input: URL, to output: URL, token: CancellationToken) throws {
         try token.check()
@@ -65,8 +66,9 @@ enum HTMLPDFRenderer {
             do {
                 let directory = try OutputFiles.temporaryDirectory(); rules = directory
                 guard let store = WKContentRuleListStore(url: directory) else { throw NashiError.failed("WebKit could not block remote resources. No PDF was exported.") }
-                // Content blockers stop remote subresources before WebKit requests them.
-                let offline = #"[{"trigger":{"url-filter":".*"},"action":{"type":"block"}},{"trigger":{"url-filter":"^\#(HTMLPDFRenderer.scheme):"},"action":{"type":"ignore-previous-rules"}}]"#
+                // Content blockers stop remote subresources before WebKit requests them. Scripts
+                // also may not fetch files beside the page, so they cannot copy them into the PDF.
+                let offline = #"[{"trigger":{"url-filter":".*"},"action":{"type":"block"}},{"trigger":{"url-filter":"^\#(HTMLPDFRenderer.scheme):"},"action":{"type":"ignore-previous-rules"}},{"trigger":{"url-filter":".*","resource-type":["raw"]},"action":{"type":"block"}}]"#
                 store.compileContentRuleList(forIdentifier: "Offline", encodedContentRuleList: offline) { list, _ in
                     MainActor.assumeIsolated {
                         guard let list else { return self.finish(.failure(NashiError.failed("WebKit could not block remote resources. No PDF was exported."))) }
@@ -147,9 +149,7 @@ enum HTMLPDFRenderer {
         private func printPDF(contentHeight: Double) {
             guard outcome == nil, let view, let window else { return }
             // CSS pixels print at three quarters of a point.
-            guard contentHeight * 0.75 / printable.height <= 1000 else {
-                return finish(.failure(NashiError.invalidInput("This HTML file would need more than 1,000 PDF pages.")))
-            }
+            guard contentHeight * 0.75 / printable.height <= 1000 else { return finish(.failure(HTMLPDFRenderer.tooManyPages)) }
             let operation = view.printOperation(with: info)
             operation.showsPrintPanel = false
             operation.showsProgressPanel = false
@@ -170,6 +170,8 @@ enum HTMLPDFRenderer {
             guard success, let data = try? Data(contentsOf: output), let pdf = PDFDocument(data: data), pdf.pageCount > 0 else {
                 return finish(.failure(NashiError.failed("WebKit could not print this HTML file to PDF.")))
             }
+            // Forced page breaks add pages that the height estimate cannot see.
+            guard pdf.pageCount <= 1000 else { return finish(.failure(HTMLPDFRenderer.tooManyPages)) }
             // Links to files beside the page cannot open from a shared PDF.
             var removed = false
             for index in 0..<pdf.pageCount {
