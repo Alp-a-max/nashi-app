@@ -66,9 +66,9 @@ enum PDFOfficeCodec {
 
     static func recognizedCells(_ page: PDFPage, token: CancellationToken) throws -> [TextCell] {
         try token.check()
-        let bounds = page.bounds(for: .mediaBox)
+        let bounds = page.bounds(for: .cropBox)
         let size = NSSize(width: max(1, bounds.width * 2), height: max(1, bounds.height * 2))
-        let image = page.thumbnail(of: size, for: .mediaBox)
+        let image = page.thumbnail(of: size, for: .cropBox)
         var rect = CGRect(origin: .zero, size: size)
         guard let cgImage = image.cgImage(forProposedRect: &rect, context: nil, hints: nil) else { return [] }
         let request = VNRecognizeTextRequest()
