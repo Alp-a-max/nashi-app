@@ -103,6 +103,13 @@ enum ArchiveCodec {
         guard entries > 0 else {
             // Empty ZIP/TAR archives are valid and extract to an empty folder.
             if a.format(reader) == 0 { throw NashiError.invalidInput("This file is not a readable archive.") }
+            // A gzip of an empty file restores that empty file, not an empty folder.
+            if gzip && a.format(reader) == 0x60000 {
+                let destination = try safeURL(input.deletingPathExtension().lastPathComponent, inside: root)
+                guard destination.standardizedFileURL != root.standardizedFileURL else { return }
+                try validateDestination(destination, root: root)
+                guard fm.createFile(atPath: destination.path, contents: nil) else { throw NashiError.failed("Could not create \(destination.lastPathComponent).") }
+            }
             return
         }
         for link in links.filter(\.hard) {
