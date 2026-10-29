@@ -704,8 +704,11 @@ struct ToolEditor:View {
     }
     func setCrop(_ rect:EditRect) {
         var r=rect
-        r.x=r.x.rounded(.down);r.y=r.y.rounded(.down)
-        r.width=r.width.rounded(.down);r.height=r.height.rounded(.down)
+        // Whole pixels, rounded down, except that floating-point noise just under an
+        // integer (a locked ratio's 0.9999999999999999) keeps that integer.
+        func pixels(_ v:Double)->Double { let n=v.rounded();return abs(v-n)<1e-6 ? n:v.rounded(.down) }
+        r.x=pixels(r.x);r.y=pixels(r.y)
+        r.width=max(1,pixels(r.width));r.height=max(1,pixels(r.height))
         options.crop=r;width=Int(r.width);height=Int(r.height)
     }
     func previewChannel(_ channel:Int) {
