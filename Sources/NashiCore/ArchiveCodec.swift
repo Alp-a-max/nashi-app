@@ -16,11 +16,16 @@ enum ArchiveCodec {
         guard let reader = a.readNew() else { throw NashiError.failed("Could not initialize the archive reader.") }
         defer { _ = a.readFree(reader) }
         try a.check(a.readSupportFilters(reader), handle: reader)
-        try a.check(a.readSupportFormats(reader), handle: reader)
-        if ["gz", "gzip"].contains(input.pathExtension.lowercased()) {
+        let gzip = ["gz", "gzip"].contains(input.pathExtension.lowercased())
+        if gzip {
             let prefix = try Data(contentsOf: input, options: .mappedIfSafe).prefix(2)
             guard prefix.elementsEqual([0x1f, 0x8b]) else { throw NashiError.invalidInput("This file is not a GZIP stream.") }
+            // A .gz holds a tarball or one file; never sniff the payload as ZIP, mtree, etc.
+            try a.check(a.readSupportTar(reader), handle: reader)
             try a.check(a.readSupportRaw(reader), handle: reader)
+            try a.check(a.readSupportEmpty(reader), handle: reader)
+        } else {
+            try a.check(a.readSupportFormats(reader), handle: reader)
         }
         if !password.isEmpty { try a.check(password.withCString { a.readPassphrase(reader, $0) }, handle: reader) }
         try a.check(input.path.withCString { a.readOpen(reader, $0, 128 * 1024) }, handle: reader)
@@ -279,6 +284,8 @@ enum ArchiveCodec {
         var readSupportFilters: Call { symbol("archive_read_support_filter_all", Call.self) }
         var readSupportFormats: Call { symbol("archive_read_support_format_all", Call.self) }
         var readSupportRaw: Call { symbol("archive_read_support_format_raw", Call.self) }
+        var readSupportTar: Call { symbol("archive_read_support_format_tar", Call.self) }
+        var readSupportEmpty: Call { symbol("archive_read_support_format_empty", Call.self) }
         var readPassphrase: OpenWrite { symbol("archive_read_add_passphrase", OpenWrite.self) }
         var readOpen: OpenRead { symbol("archive_read_open_filename", OpenRead.self) }
         var readNext: Next { symbol("archive_read_next_header", Next.self) }
