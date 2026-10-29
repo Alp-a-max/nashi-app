@@ -102,6 +102,8 @@ internal static class ParityChecks
             Console.WriteLine("Verifying archive conversion: "+format);
             var converted=ArchiveEngine.Convert(zip,format,root)[0];var restored=ArchiveEngine.Extract(converted,root)[0];check(File.ReadAllText(Path.Combine(restored,"Archive source.txt"))==File.ReadAllText(input),"Archive round trip changed contents: "+format);
         }
+        var tarGz=Path.Combine(root,"Bundle.tar.gz");File.Copy(ArchiveEngine.Convert(zip,"gz",root)[0],tarGz);
+        check(Path.GetFileName(ArchiveEngine.Extract(tarGz,root)[0])=="Bundle Extracted"&&Path.GetFileName(ArchiveEngine.Convert(tarGz,"zip",root)[0])=="Bundle.zip","TAR.GZ outputs kept the inner .tar in their names");
         var nested=Directory.CreateDirectory(Path.Combine(root,"Zip folder","Nested"));File.WriteAllText(Path.Combine(nested.FullName,"Fruit.txt"),"Pear");var folderZip=DocumentEngine.Zip([nested.Parent!.FullName],root);var folderRestored=ArchiveEngine.Extract(folderZip,root)[0];check(File.ReadAllText(Path.Combine(folderRestored,"Zip folder","Nested","Fruit.txt"))=="Pear","Folder ZIP lost nested files");
         Directory.CreateDirectory(Path.Combine(nested.FullName,"Empty"));var withEmpty=DocumentEngine.Zip([nested.Parent!.FullName],root);foreach(var format in new[]{"tar","gz","zip"}){var restored=ArchiveEngine.Extract(ArchiveEngine.Convert(withEmpty,format,root)[0],root)[0];check(Directory.Exists(Path.Combine(restored,"Zip folder","Nested","Empty")),"Archive conversion lost an empty folder: "+format);}
         var rar=Path.Combine(root,"Stored.rar");StoredRar(rar);var rarOutput=ArchiveEngine.Extract(rar,root)[0];check(File.ReadAllText(Path.Combine(rarOutput,"Fruit.txt"))=="Nashi pear fixture","Stored RAR extraction failed");
