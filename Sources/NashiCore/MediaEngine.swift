@@ -435,7 +435,7 @@ public enum MediaEngine {
         var graph: [String] = []
         var previous = "0:v:0"
         for (index, selection) in selections.enumerated() {
-            let rect = try mode == "solid" ? redactionPixelRect(selection.rect, width: width, height: height) : pixelRect(selection.rect, width: width, height: height)
+            let rect = try redactionPixelRect(selection.rect, width: width, height: height)
             let range = try timeRange(selection.start, selection.end, duration: info.duration)
             let enable = "between(t,\(decimal(range.0)),\(decimal(range.1)))"
             let next = "redacted\(index)"
