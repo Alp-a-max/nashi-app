@@ -500,7 +500,8 @@ public enum MediaEngine {
                     if ["mp4", "mov", "m4v"].contains(ext) { arguments += ["-movflags", "+faststart"] }
                 } else {
                     arguments += ["-map", "0:a:0", "-vn"] + audioEncoding(ext, quality: options.quality, bitrate: Int(audioRate), source: info.audio)
-                    if audioRate < 24000 { arguments += ["-ac", "1", "-ar", "22050"] }
+                    // libopus cannot encode at 22.05 kHz; 24 kHz is its nearest supported rate.
+                    if audioRate < 24000 { arguments += ["-ac", "1", "-ar", ext == "opus" ? "24000" : "22050"] }
                 }
                 try render(arguments, to: out, token: token, duration: info.duration, progress: { value,_ in attemptProgress(OperationProgress.map(value, from: video ? 0.5 : 0, to: 1),"Encoding…") })
                 ownsOutput = true
