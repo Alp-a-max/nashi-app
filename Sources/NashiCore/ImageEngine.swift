@@ -152,8 +152,9 @@ public enum ImageEngine {
         guard options.width != nil || options.height != nil else { return image }
         for value in [options.width,options.height].compactMap({$0}) { guard value>0,value<=32000 else { throw NashiError.invalidInput("Image dimensions must be between 1 and 32,000 pixels.") } }
         let ratio = Double(image.height) / Double(image.width)
-        let width = options.width ?? Int(Double(options.height!) / ratio)
-        let height = options.height ?? Int(Double(width) * ratio)
+        // Round the derived side and keep at least one pixel for very thin images.
+        let width = options.width ?? max(1, Int((Double(options.height!) / ratio).rounded()))
+        let height = options.height ?? max(1, Int((Double(width) * ratio).rounded()))
         return try resized(image, width: width, height: height)
     }
 
