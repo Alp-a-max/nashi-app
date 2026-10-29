@@ -58,7 +58,12 @@ struct JobRecord:Codable,Identifiable {
     private let historyDefaults:UserDefaults
     init(defaults:UserDefaults = .standard) {
         historyDefaults=defaults;super.init()
-        if let data=historyDefaults.data(forKey:"history"),let items=try? JSONDecoder().decode([JobRecord].self,from:data) { history=items }
+        // Decode records one by one so a single unreadable entry cannot erase the whole Library.
+        if let data=historyDefaults.data(forKey:"history"),let items=try? JSONDecoder().decode([StoredJobRecord].self,from:data) { history=items.compactMap(\.record) }
+    }
+    private struct StoredJobRecord:Decodable {
+        let record:JobRecord?
+        init(from decoder:Decoder) throws { record=try? JobRecord(from:decoder) }
     }
     func retainToolWindow(_ window:NSWindow) {
         toolWindows.append(window);let id=ObjectIdentifier(window)
