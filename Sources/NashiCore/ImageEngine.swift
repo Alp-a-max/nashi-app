@@ -510,19 +510,23 @@ public enum ImageEngine {
         if let target { guard target>0 else { throw NashiError.invalidInput("Choose a positive target file size.") } }
         let ext=["jpg","jpeg","heic","webp","avif","png"].contains(input.pathExtension.lowercased()) ? input.pathExtension : "jpg"
         let output=OutputFiles.unique(for:input,extension:ext,suffix:" - Compressed",directory:options.outputDirectory)
+        // Attempts are encoded privately; a failed or cancelled pass leaves no partial output.
+        let temporary=output.deletingLastPathComponent().appendingPathComponent(".nashi-\(UUID().uuidString)").appendingPathExtension(output.pathExtension)
+        defer { try? FileManager.default.removeItem(at:temporary) }
         var quality=max(0.01,min(1,options.quality))
         for iteration in 0..<24 {
-            try token.check();try? FileManager.default.removeItem(at:output)
-            try write(image,to:output,quality:quality)
+            try token.check();try? FileManager.default.removeItem(at:temporary)
+            try write(image,to:temporary,quality:quality)
             // The same URL is replaced on each pass; resourceValues can retain its first size.
-            let size=((try FileManager.default.attributesOfItem(atPath:output.path))[.size] as? NSNumber)?.int64Value ?? 0
+            let size=((try FileManager.default.attributesOfItem(atPath:temporary.path))[.size] as? NSNumber)?.int64Value ?? 0
             if target == nil || size <= target! {
-                if image.width==originalWidth,image.height==originalHeight { try OutputFiles.retainSmallerOriginal(input,output:output,target:target) }
+                if image.width==originalWidth,image.height==originalHeight { try OutputFiles.retainSmallerOriginal(input,output:temporary,target:target) }
+                try FileManager.default.moveItem(at:temporary,to:output)
                 return [output]
             }
             if quality>0.15 && !["png"].contains(ext.lowercased()) { quality *= 0.72 }
             else { image=try resized(image,width:max(1,Int(Double(image.width)*0.8)),height:max(1,Int(Double(image.height)*0.8))) }
-            if iteration == 23 { try? FileManager.default.removeItem(at:output);throw NashiError.failed("The requested file size could not be reached. Choose a larger target.") }
+            if iteration == 23 { throw NashiError.failed("The requested file size could not be reached. Choose a larger target.") }
         }
         return [output]
     }
