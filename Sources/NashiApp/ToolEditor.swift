@@ -458,7 +458,7 @@ struct ToolEditor:View {
     }
     var pdfControls:some View {
         VStack(alignment:.leading,spacing:14) {
-            LazyVGrid(columns:[GridItem(.adaptive(minimum:110))],spacing:14) { ForEach(Array(pdfEditor.pages.enumerated()),id:\.offset) { index,page in VStack { Image(nsImage:page.thumbnail(of:NSSize(width:100,height:140),for:.mediaBox)).resizable().scaledToFit().frame(height:140);Text("\(index+1)").font(.caption) }.padding(8).background(pdfEditor.selectedPage==index ? Color.nashi.opacity(0.2):Color.primary.opacity(0.03)).cornerRadius(8).onTapGesture{pdfEditor.select(index)} } }
+            LazyVGrid(columns:[GridItem(.adaptive(minimum:110))],spacing:14) { ForEach(Array(pdfEditor.pages.enumerated()),id:\.offset) { index,page in VStack { Image(nsImage:page.thumbnail(of:NSSize(width:100,height:140),for:.cropBox)).resizable().scaledToFit().frame(height:140);Text("\(index+1)").font(.caption) }.padding(8).background(pdfEditor.selectedPage==index ? Color.nashi.opacity(0.2):Color.primary.opacity(0.03)).cornerRadius(8).onTapGesture{pdfEditor.select(index)} } }
             HStack {
                 Button("Rotate") { pdfEditor.rotateSelected() }.disabled(!pdfEditor.hasSelection)
                 Button("Duplicate") { pdfEditor.duplicateSelected() }.disabled(!pdfEditor.hasSelection)
