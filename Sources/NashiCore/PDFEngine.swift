@@ -30,7 +30,7 @@ public enum PDFEngine {
                 let w=max(1,Int(scaledWidth.rounded())),h=max(1,Int(scaledHeight.rounded()))
                 guard w<=32000,h<=32000,let ctx=CGContext(data:nil,width:w,height:h,bitsPerComponent:8,bytesPerRow:0,space:CGColorSpaceCreateDeviceRGB(),bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue) else { throw NashiError.failed("PDF page is too large to render at this DPI.") }
                 ctx.setFillColor(CGColor(gray:1,alpha:1));ctx.fill(CGRect(x:0,y:0,width:w,height:h));ctx.scaleBy(x:scale,y:scale)
-                ctx.concatenate(ref.getDrawingTransform(.mediaBox,rect:bounds,rotate:Int32(page.rotation)-ref.rotationAngle,preserveAspectRatio:true))
+                ctx.concatenate(ref.getDrawingTransform(.cropBox,rect:bounds,rotate:Int32(page.rotation)-ref.rotationAngle,preserveAspectRatio:true))
                 ctx.drawPDFPage(ref)
                 for annotation in page.annotations { annotation.draw(with:.mediaBox,in:ctx) }
                 try token.check()
