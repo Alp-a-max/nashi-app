@@ -116,7 +116,8 @@ public enum PDFEngine {
                     outputs.append(output);continue
                 }
                 var dpi=144.0,quality=options.quality
-                var complete=false
+                var complete=false,wrote=false
+                defer { if wrote && !complete { try? FileManager.default.removeItem(at:output) } }
                 for attempt in 0..<14 {
                     try token.check();let compressed=PDFDocument()
                     for n in 0..<pdf.pageCount {
@@ -128,7 +129,7 @@ public enum PDFEngine {
                         guard let data=bitmap.representation(using:.jpeg,properties:[.compressionFactor:quality]),let img=NSImage(data:data),let result=PDFPage(image:img) else { continue }
                         result.setBounds(bounds,for:.mediaBox);compressed.insert(result,at:compressed.pageCount)
                     }
-                    guard compressed.write(to:output) else { throw NashiError.failed("Could not compress PDF.") }
+                    wrote=true;guard compressed.write(to:output) else { throw NashiError.failed("Could not compress PDF.") }
                     let bytes=(try FileManager.default.attributesOfItem(atPath:output.path)[.size] as? NSNumber)?.int64Value ?? 0
                     if target == nil || bytes<=target! { complete=true;break };dpi=max(36,dpi*0.8);quality=max(0.05,quality*0.75)
                 }
