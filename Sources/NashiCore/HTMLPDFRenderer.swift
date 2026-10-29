@@ -4,8 +4,9 @@ import UniformTypeIdentifiers
 import WebKit
 
 /// Prints a local HTML file with the system WebKit engine, so the PDF keeps the
-/// layout Safari shows. Page scripts never run, WebKit receives only regular files
-/// from the page's own folder, and every other load is blocked before it starts.
+/// layout Safari shows. Page scripts run without network or device access, WebKit
+/// receives only regular files from the page's own folder, and every other load is
+/// blocked before it starts.
 enum HTMLPDFRenderer {
     static let scheme = "nashi-html"
 
@@ -39,7 +40,9 @@ enum HTMLPDFRenderer {
         if Thread.isMainThread { MainActor.assumeIsolated(work) } else { DispatchQueue.main.async { MainActor.assumeIsolated(work) } }
     }
 
-    @MainActor private final class Job: NSObject, WKNavigationDelegate, WKURLSchemeHandler {
+    @MainActor private final class Job: NSObject, WKNavigationDelegate, WKUIDelegate, WKURLSchemeHandler {
+        // WebRTC reaches the network outside content blockers, and device APIs could prompt or record.
+        static let withoutDevices = "for (const name of ['RTCPeerConnection', 'webkitRTCPeerConnection', 'RTCDataChannel', 'RTCIceCandidate', 'RTCSessionDescription', 'speechSynthesis']) delete window[name]; for (const name of ['mediaDevices', 'geolocation', 'getUserMedia', 'webkitGetUserMedia']) delete Navigator.prototype[name]"
         nonisolated let signal = DispatchSemaphore(value: 0)
         nonisolated private let lock = NSLock()
         nonisolated(unsafe) private var result: Result<Void, Error>?
@@ -77,7 +80,9 @@ enum HTMLPDFRenderer {
             guard outcome == nil else { return }
             let configuration = WKWebViewConfiguration()
             configuration.websiteDataStore = .nonPersistent()
-            configuration.defaultWebpagePreferences.allowsContentJavaScript = false
+            // Page scripts run because documents such as e-invoices draw their QR codes with them.
+            // They lose WebRTC, camera, microphone and location before the first page script runs.
+            configuration.userContentController.addUserScript(WKUserScript(source: Job.withoutDevices, injectionTime: .atDocumentStart, forMainFrameOnly: false))
             configuration.mediaTypesRequiringUserActionForPlayback = .all
             configuration.preferences.isFraudulentWebsiteWarningEnabled = false
             if #available(macOS 13.3, *) { configuration.preferences.shouldPrintBackgrounds = true }
@@ -88,6 +93,7 @@ enum HTMLPDFRenderer {
             // A dark app appearance must not switch the page to its dark color scheme.
             view.appearance = NSAppearance(named: .aqua)
             view.navigationDelegate = self
+            view.uiDelegate = self
             let window = NSWindow(contentRect: view.frame, styleMask: .borderless, backing: .buffered, defer: true)
             window.isReleasedWhenClosed = false
             window.contentView = view
@@ -118,6 +124,10 @@ enum HTMLPDFRenderer {
             return file
         }
 
+        func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping @MainActor @Sendable (WKPermissionDecision) -> Void) {
+            decisionHandler(.deny)
+        }
+
         func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void) {
             // Frames may show files beside the page. Nothing navigates away from it.
             guard let url = action.request.url, url.scheme == HTMLPDFRenderer.scheme else { return decisionHandler(.cancel) }
@@ -126,8 +136,9 @@ enum HTMLPDFRenderer {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             guard navigation === self.navigation, outcome == nil else { return }
-            // Lazy images below the first screen and web fonts must be ready before printing.
-            let ready = "for (const image of document.images) image.loading = 'eager'; await Promise.all([...document.images].map(image => image.complete || new Promise(done => { image.onload = image.onerror = done }))); await document.fonts.ready; return document.documentElement.scrollHeight"
+            // Lazy images and web fonts must be ready. Scripts may swap in an image, such as a QR
+            // code, just after loading, so images are checked again after a short pause.
+            let ready = "const settled = () => Promise.all([...document.images].map(image => image.complete || new Promise(done => { image.addEventListener('load', done, { once: true }); image.addEventListener('error', done, { once: true }) }))); for (const image of document.images) image.loading = 'eager'; await settled(); await document.fonts.ready; await new Promise(done => setTimeout(done, 100)); await settled(); return document.documentElement.scrollHeight"
             webView.callAsyncJavaScript(ready, arguments: [:], in: nil, in: .defaultClient) { height in
                 MainActor.assumeIsolated { self.printPDF(contentHeight: (try? height.get()) as? Double ?? 0) }
             }
@@ -180,7 +191,7 @@ enum HTMLPDFRenderer {
         func finish(_ value: Result<Void, Error>) {
             // A cancelled job keeps the view until AppKit stops printing from it.
             if !printing {
-                view?.stopLoading(); view?.navigationDelegate = nil
+                view?.stopLoading(); view?.navigationDelegate = nil; view?.uiDelegate = nil
                 window?.contentView = nil; window?.close()
                 view = nil; window = nil; navigation = nil
                 if let rules { try? FileManager.default.removeItem(at: rules) }
