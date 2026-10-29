@@ -21,9 +21,12 @@ import NashiCore
         let source=inputs,password=password,cancel=token,model=self
         Task {
             do {
-                report=try await Task.detached(priority:.userInitiated) {
+                let scanned=try await Task.detached(priority:.userInitiated) {
                     try QRCodeEngine.scan(source,password:password,token:cancel) { amount,message in Task { @MainActor in model.progress=amount;model.label=message } }
                 }.value
+                // A Cancel or window close can land after the engine's last check.
+                try cancel.check()
+                report=scanned
                 if report.errors.isEmpty { onSuccess(SuccessNotice(title:"Scan complete.",detail:"\(report.results.count) QR code\(report.results.count == 1 ? "":"s") found.")) }
             } catch { self.error=error.localizedDescription }
             busy=false
