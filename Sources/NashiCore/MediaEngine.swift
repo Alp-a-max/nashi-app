@@ -101,8 +101,15 @@ public enum MediaEngine {
         }
         for key in metadata.keys.sorted() {
             guard let value = metadata[key], !key.isEmpty, !key.contains("\0"), !value.contains("\0") else { throw NashiError.invalidInput("Metadata fields cannot be empty or contain null characters.") }
-            let (specifier, field) = try metadataSpecifier(key)
+            let (requested, field) = try metadataSpecifier(key)
+            var specifier = requested
             guard !field.isEmpty, !field.contains("=") else { throw NashiError.invalidInput("Invalid metadata field: \(key)") }
+            if removeAll, specifier.hasPrefix("-metadata:s:"), let index = Int(specifier.dropFirst("-metadata:s:".count)) {
+                // Stream specifiers address output streams; unmapped tracks shift later ones down.
+                let removed = Set(info.streams.filter { $0.kind == "data" || $0.isAttachedPicture }.map(\.index))
+                guard !removed.contains(index) else { throw NashiError.invalidInput("Track \(index) is removed with all metadata: \(key)") }
+                specifier = "-metadata:s:\(index - removed.filter { $0 < index }.count)"
+            }
             arguments += [specifier, "\(field)=\(value)"]
         }
         if ["mp4", "mov", "m4a", "m4v"].contains(ext) { arguments += ["-movflags", "+use_metadata_tags"] }
