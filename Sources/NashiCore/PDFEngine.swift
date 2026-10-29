@@ -69,6 +69,7 @@ public enum PDFEngine {
                 let order=try pageOrder(options.pageRanges,count:pdf.pageCount),chunk=max(1,options.pagesPerFile)
                 let folder=OutputFiles.unique(for:input,extension:"",suffix:" - Pages",directory:options.outputDirectory)
                 try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
+                var saved=false;defer { if !saved { try? FileManager.default.removeItem(at:folder) } }
                 for start in stride(from:0,to:order.count,by:chunk) {
                     try token.check()
                     let selection=Array(order[start..<min(start+chunk,order.count)])
@@ -77,6 +78,7 @@ public enum PDFEngine {
                     try bytes.write(to:output,options:.atomic);outputs.append(output)
                     progress(Double(min(start+chunk,order.count))/Double(order.count),"Saved \(min(start+chunk,order.count)) of \(order.count) pages")
                 }
+                saved=true
             case .organizePDF:
                 let order=options.pdfPageOrder.isEmpty ? try pageOrder(options.pageRanges,count:pdf.pageCount):options.pdfPageOrder
                 var rotations:[Int:Int]=[:]
