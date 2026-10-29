@@ -263,7 +263,10 @@ enum FloatShelfViewMode:Int { case icons,list }
     func collectionView(_ collectionView:NSCollectionView,acceptDrop draggingInfo:NSDraggingInfo,indexPath:IndexPath,dropOperation:NSCollectionView.DropOperation)->Bool {
         let values=ShelfDropSurface.fileURLs(draggingInfo.draggingPasteboard);guard !values.isEmpty else { return false };append(values);return true
     }
-    private func refreshAfterDrag() { collection.reloadData();updateLabels() }
+    private func refreshAfterDrag() {
+        let selected=Set(selectedIndices.map{items[$0].id})
+        reload(preserving:selected)
+    }
 
     private func handleKey(_ event:NSEvent)->Bool {
         let command=event.modifierFlags.contains(.command)
