@@ -677,7 +677,7 @@ public enum MediaEngine {
     }
     private static func timeRange(_ start: Double, _ end: Double?, duration: Double) throws -> (Double, Double) {
         let finish = end ?? duration
-        guard start.isFinite, finish.isFinite, start >= 0, finish > start, duration <= 0 || finish <= duration + 0.001 else { throw NashiError.invalidInput("The start and end times must describe a nonempty range inside the media.") }
+        guard start.isFinite, finish.isFinite, start >= 0, finish > start, duration <= 0 || (start < duration && finish <= duration + 0.001) else { throw NashiError.invalidInput("The start and end times must describe a nonempty range inside the media.") }
         return (start, min(finish, duration > 0 ? duration : finish))
     }
     private static func pixelRect(_ rect: EditRect, width: Int, height: Int) throws -> (x: Int, y: Int, w: Int, h: Int) {
