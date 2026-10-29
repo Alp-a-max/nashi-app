@@ -140,7 +140,7 @@ struct JobRecord:Codable,Identifiable {
                 var moved:[URL:URL]=[:]
                 do { for source in urls {
                     var target=directory.appendingPathComponent(source.lastPathComponent)
-                    if target.standardizedFileURL == source.standardizedFileURL { continue }
+                    if target.standardizedFileURL == source.standardizedFileURL || sameFolder(source.deletingLastPathComponent(),directory) { continue }
                     // Same names as OutputFiles.unique, but attributesOfItem does not follow links, so a dangling link also takes a name.
                     var index=2
                     while (try? FileManager.default.attributesOfItem(atPath:target.path)) != nil { target=directory.appendingPathComponent("\(source.deletingPathExtension().lastPathComponent) \(index)").appendingPathExtension(source.pathExtension.lowercased());index+=1 }
@@ -180,12 +180,15 @@ struct JobRecord:Codable,Identifiable {
     }
 }
 
+// Compares folder identity, so a symlinked path or a missing trailing slash still matches.
+private func sameFolder(_ a:URL,_ b:URL)->Bool {
+    guard let x=try? a.resolvingSymlinksInPath().resourceValues(forKeys:[.fileResourceIdentifierKey]).fileResourceIdentifier,
+          let y=try? b.resolvingSymlinksInPath().resourceValues(forKeys:[.fileResourceIdentifierKey]).fileResourceIdentifier else { return false }
+    return x.isEqual(y)
+}
+
 private func withGrantedFolderAccess<T>(_ urls:[URL],_ action:() throws -> T) throws -> T {
-    func acquire(_ index:Int) throws -> T {
-        guard index<urls.count else { return try action() }
-        return try FolderAccessPreferences.withAccess(to:urls[index]) { try acquire(index+1) }
-    }
-    return try acquire(0)
+    try FolderAccessPreferences.withAccess(to:urls,action)
 }
 
 extension AppState:NSSharingServiceDelegate {
