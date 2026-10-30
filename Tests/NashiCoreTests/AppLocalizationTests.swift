@@ -96,6 +96,28 @@ final class AppLocalizationTests:XCTestCase {
         XCTAssertEqual(NotchInteractionPolicy.collapseDelayMilliseconds,250)
     }
 
+    func testFocusTimerPausesCompletesAndNeverGoesBelowZero() {
+        var timer=NotchFocusTimer(durationSeconds:2)
+        XCTAssertFalse(timer.tick())
+        timer.start()
+        XCTAssertFalse(timer.tick())
+        XCTAssertEqual(timer.remainingSeconds,1)
+        XCTAssertTrue(timer.tick())
+        XCTAssertFalse(timer.isRunning)
+        XCTAssertEqual(timer.remainingSeconds,0)
+        XCTAssertFalse(timer.tick())
+        timer.start()
+        XCTAssertFalse(timer.isRunning)
+    }
+
+    func testFocusTimerResetRestoresTheDefaultSession() {
+        var timer=NotchFocusTimer(durationSeconds:8)
+        timer.start()
+        timer.reset()
+        XCTAssertEqual(timer.remainingSeconds,NotchFocusTimer.defaultDurationSeconds)
+        XCTAssertFalse(timer.isRunning)
+    }
+
     func testHoverExpandsAndDelayedCollapseCanRunAfterPointerLeaves() {
         var state=NotchInteractionState()
         state.pointerEntered()
@@ -129,6 +151,12 @@ final class AppLocalizationTests:XCTestCase {
         XCTAssertEqual(AppLocalization.text("{0} tools",language:"tr"),"{0} araçlar")
         XCTAssertEqual(AppLocalization.text("Convert to {0}",language:"tr"),"{0} biçimine dönüştür")
         XCTAssertEqual(AppLocalization.text("Convert {0} to {1}",language:"tr"),"{0} dosyasını {1} biçimine dönüştür")
+    }
+
+    func testNotchWidgetsHaveTurkishCopy() {
+        for source in ["Widgets","Focus timer","Quick note","To-do list","Add a task","Start focus timer","Pause focus timer","Reset focus timer","Notes and tasks stay on this Mac."] {
+            XCTAssertNotEqual(AppLocalization.text(source,language:"tr"),source,source)
+        }
     }
 
     func testFormatChipsUseCompatibleTargetsFromExistingCatalog() {

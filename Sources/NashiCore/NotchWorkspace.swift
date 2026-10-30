@@ -58,6 +58,36 @@ public enum NotchInteractionPolicy {
     public static let collapseDelayMilliseconds=250
 }
 
+/// A local-only focus countdown used by the optional notch widgets tab.
+public struct NotchFocusTimer: Equatable {
+    public static let defaultDurationSeconds=25*60
+    public private(set) var remainingSeconds:Int
+    public private(set) var isRunning=false
+
+    public init(durationSeconds:Int=NotchFocusTimer.defaultDurationSeconds) {
+        remainingSeconds=max(0,durationSeconds)
+    }
+
+    public mutating func start() {
+        if remainingSeconds>0 { isRunning=true }
+    }
+
+    public mutating func pause() { isRunning=false }
+
+    public mutating func reset(durationSeconds:Int=NotchFocusTimer.defaultDurationSeconds) {
+        remainingSeconds=max(0,durationSeconds)
+        isRunning=false
+    }
+
+    /// Returns true once when this tick reaches zero.
+    @discardableResult public mutating func tick() -> Bool {
+        guard isRunning,remainingSeconds>0 else { return false }
+        remainingSeconds-=1
+        if remainingSeconds==0 { isRunning=false;return true }
+        return false
+    }
+}
+
 public struct NotchInteractionState: Equatable {
     public private(set) var isExpanded=false
     public private(set) var pointerInside=false

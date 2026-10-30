@@ -4,19 +4,43 @@ import NashiCore
 
 @MainActor final class NotchPanelModel: ObservableObject {
     enum Tab: String, CaseIterable, Identifiable {
-        case drop, tools, history
+        case drop, tools, history, widgets
         var id: String { rawValue }
-        var title: String { switch self { case .drop: return "Drop"; case .tools: return "Tools"; case .history: return "History" } }
-        var symbol: String { switch self { case .drop: return "square.and.arrow.down"; case .tools: return "square.grid.3x3"; case .history: return "clock.arrow.circlepath" } }
+        var title: String { switch self { case .drop: return "Drop"; case .tools: return "Tools"; case .history: return "History"; case .widgets: return "Widgets" } }
+        var symbol: String { switch self { case .drop: return "square.and.arrow.down"; case .tools: return "square.grid.3x3"; case .history: return "clock.arrow.circlepath"; case .widgets: return "sparkles" } }
     }
 
     @Published private(set) var isExpanded=false
     @Published private(set) var pointerInside=false
     @Published private(set) var dropTargeted=false
     @Published var selectedTab=Tab.drop
+    @Published var quickNote:String { didSet { defaults.set(quickNote,forKey:"notchQuickNote") } }
+    @Published var tasks:[QuickTask] { didSet { persistTasks() } }
+    @Published var taskDraft=""
+    @Published private(set) var focusRemainingSeconds:Int
+    @Published private(set) var focusTimerRunning=false
     private var interaction=NotchInteractionState()
     private var collapseWork: DispatchWorkItem?
+    private let defaults:UserDefaults
+    private var focusTimer=NotchFocusTimer()
+    private var focusTick:Timer?
     var onExpandedChange: ((Bool)->Void)?
+
+    struct QuickTask:Identifiable,Codable,Equatable {
+        var id=UUID()
+        var title:String
+        var isComplete=false
+    }
+
+    init(defaults:UserDefaults = .standard) {
+        self.defaults=defaults
+        quickNote=defaults.string(forKey:"notchQuickNote") ?? ""
+        if let data=defaults.data(forKey:"notchQuickTasks"),let saved=try? JSONDecoder().decode([QuickTask].self,from:data) { tasks=saved }
+        else { tasks=[] }
+        let remaining=(defaults.object(forKey:"notchFocusRemainingSeconds") as? Int) ?? NotchFocusTimer.defaultDurationSeconds
+        focusTimer=NotchFocusTimer(durationSeconds:remaining)
+        focusRemainingSeconds=focusTimer.remainingSeconds
+    }
 
     func pointerEntered() {
         collapseWork?.cancel();collapseWork=nil
@@ -76,9 +100,63 @@ import NashiCore
 
     func stop() {
         collapseWork?.cancel();collapseWork=nil
+        pauseFocusTimer()
         interaction.pointerExited();interaction.draggingEnded()
         dropTargeted=false;pointerInside=false
         setExpanded(false)
+    }
+
+    func addTask() {
+        let title=taskDraft.trimmingCharacters(in:.whitespacesAndNewlines)
+        guard !title.isEmpty else { return }
+        tasks.append(QuickTask(title:title));taskDraft=""
+    }
+
+    func toggleTask(_ task:QuickTask) {
+        guard let index=tasks.firstIndex(where:{$0.id==task.id}) else { return }
+        tasks[index].isComplete.toggle()
+    }
+
+    func removeTask(_ task:QuickTask) { tasks.removeAll{$0.id==task.id} }
+
+    func toggleFocusTimer() {
+        if focusTimer.isRunning { pauseFocusTimer();return }
+        if focusTimer.remainingSeconds==0 { focusTimer.reset() }
+        focusTimer.start();publishFocusTimer()
+        focusTick?.invalidate()
+        focusTick=Timer.scheduledTimer(withTimeInterval:1,repeats:true) { [weak self] _ in
+            DispatchQueue.main.async { self?.advanceFocusTimer() }
+        }
+    }
+
+    func resetFocusTimer() {
+        focusTick?.invalidate();focusTick=nil
+        focusTimer.reset();publishFocusTimer()
+    }
+
+    var focusTimeLabel:String {
+        String(format:"%02d:%02d",focusRemainingSeconds/60,focusRemainingSeconds%60)
+    }
+
+    private func pauseFocusTimer() {
+        focusTick?.invalidate();focusTick=nil
+        focusTimer.pause();publishFocusTimer()
+    }
+
+    private func advanceFocusTimer() {
+        let completed=focusTimer.tick();publishFocusTimer()
+        if completed { focusTick?.invalidate();focusTick=nil }
+    }
+
+    private func publishFocusTimer() {
+        focusRemainingSeconds=focusTimer.remainingSeconds
+        focusTimerRunning=focusTimer.isRunning
+        defaults.set(focusRemainingSeconds,forKey:"notchFocusRemainingSeconds")
+    }
+
+    private func persistTasks() {
+        guard let data=try? JSONEncoder().encode(tasks) else { return }
+        defaults.set(data,forKey:"notchQuickTasks")
     }
 
     private func scheduleCollapseIfAllowed() {
@@ -109,6 +187,12 @@ struct NotchWorkspaceView: View {
         if state.working { return 266 }
         if state.inputs.count==1 && !NotchDropShelfTargets.formats(for:state.inputs[0]).isEmpty { return 256 }
         return model.pointerInside ? 190:164
+    }
+
+    private var expandedHeadline:String {
+        if state.working { return L10n.text("A file is on its way") }
+        if model.selectedTab == .widgets { return L10n.text("A little space for focus") }
+        return L10n.text("Your files, in flow")
     }
 
     var body: some View {
@@ -174,7 +258,7 @@ struct NotchWorkspaceView: View {
                 NashiMark(size:24)
                 VStack(alignment:.leading,spacing:2) {
                     Text("NASHI").font(.system(size:9,weight:.bold,design:.rounded)).tracking(1.4).foregroundStyle(.white.opacity(0.55))
-                    Text(state.working ? "A file is on its way" : "Your files, in flow")
+                    Text(expandedHeadline)
                         .font(.system(size:14,weight:.semibold,design:.rounded)).lineLimit(1)
                 }
                 Spacer()
@@ -205,6 +289,7 @@ struct NotchWorkspaceView: View {
                 case .drop: dropShelf
                 case .tools: toolsGrid
                 case .history: historyAndProgress
+                case .widgets: quickWidgets
                 }
             }
             .frame(maxWidth:.infinity,maxHeight:.infinity,alignment:.topLeading)
@@ -341,6 +426,127 @@ struct NotchWorkspaceView: View {
             }
         }
         .accessibilityIdentifier("NashiHistoryProgress")
+    }
+
+    private var quickWidgets: some View {
+        ScrollView {
+            VStack(spacing:10) {
+                focusTimerCard
+                quickNoteCard
+                taskListCard
+                HStack(spacing:6) {
+                    Image(systemName:"lock.fill").font(.system(size:9))
+                    Text("Notes and tasks stay on this Mac.").font(.system(size:10))
+                }
+                .foregroundStyle(.white.opacity(0.48)).frame(maxWidth:.infinity,alignment:.leading)
+            }
+            .padding(.bottom,2)
+        }
+        .scrollIndicators(.hidden)
+        .accessibilityIdentifier("NashiWidgets")
+    }
+
+    private var focusTimerCard: some View {
+        HStack(spacing:11) {
+            ProgressView(value:Double(NotchFocusTimer.defaultDurationSeconds-model.focusRemainingSeconds)/Double(NotchFocusTimer.defaultDurationSeconds))
+                .progressViewStyle(.circular).tint(.white).frame(width:28,height:28)
+                .accessibilityLabel(Text(L10n.text("Focus timer progress")))
+            VStack(alignment:.leading,spacing:3) {
+                Text("Focus timer").font(.system(size:12,weight:.semibold,design:.rounded))
+                Text(model.focusRemainingSeconds==0 ? L10n.text("Session complete"):L10n.text("A quiet 25-minute session"))
+                    .font(.system(size:9)).foregroundStyle(.white.opacity(0.53)).lineLimit(1)
+            }
+            Spacer(minLength:4)
+            Text(model.focusTimeLabel).font(.system(size:17,weight:.semibold,design:.rounded)).monospacedDigit()
+            Button(action:model.resetFocusTimer) { Image(systemName:"arrow.counterclockwise") }
+                .buttonStyle(NotchIconButtonStyle()).accessibilityLabel(Text(L10n.text("Reset focus timer")))
+            Button(action:model.toggleFocusTimer) {
+                Label(L10n.text(model.focusTimerRunning ? "Pause":"Start"),systemImage:model.focusTimerRunning ? "pause.fill":"play.fill")
+                    .font(.system(size:9,weight:.semibold,design:.rounded))
+                    .padding(.horizontal,10).padding(.vertical,8)
+                    .background(Color.white.opacity(0.12),in:Capsule())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text(L10n.text(model.focusTimerRunning ? "Pause focus timer":"Start focus timer")))
+        }
+        .padding(11)
+        .background(Color.white.opacity(0.065),in:RoundedRectangle(cornerRadius:15,style:.continuous))
+        .overlay(RoundedRectangle(cornerRadius:15,style:.continuous).strokeBorder(Color.white.opacity(0.09),lineWidth:1))
+    }
+
+    private var quickNoteCard: some View {
+        VStack(alignment:.leading,spacing:7) {
+            HStack(spacing:6) {
+                Image(systemName:"note.text").font(.system(size:11))
+                Text("Quick note").font(.system(size:11,weight:.semibold,design:.rounded))
+                Spacer()
+                Text("Saved on this Mac").font(.system(size:8)).foregroundStyle(.white.opacity(0.45))
+            }
+            ZStack(alignment:.topLeading) {
+                if model.quickNote.isEmpty {
+                    Text("Write a thought to keep nearby…")
+                        .font(.system(size:10)).foregroundStyle(.white.opacity(0.34))
+                        .padding(.leading,7).padding(.top,7)
+                }
+                TextEditor(text:$model.quickNote)
+                    .font(.system(size:11,design:.rounded))
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+                    .accessibilityLabel(Text(L10n.text("Quick note")))
+            }
+            .frame(height:74)
+            .padding(5)
+            .background(Color.white.opacity(0.045),in:RoundedRectangle(cornerRadius:11,style:.continuous))
+        }
+        .padding(10)
+        .background(Color.white.opacity(0.065),in:RoundedRectangle(cornerRadius:15,style:.continuous))
+        .overlay(RoundedRectangle(cornerRadius:15,style:.continuous).strokeBorder(Color.white.opacity(0.09),lineWidth:1))
+    }
+
+    private var taskListCard: some View {
+        VStack(alignment:.leading,spacing:8) {
+            HStack(spacing:6) {
+                Image(systemName:"checklist").font(.system(size:11))
+                Text("To-do list").font(.system(size:11,weight:.semibold,design:.rounded))
+                Spacer()
+                Text("\(model.tasks.count)").font(.system(size:9,weight:.medium,design:.rounded)).foregroundStyle(.white.opacity(0.48))
+            }
+            HStack(spacing:7) {
+                TextField(L10n.text("Add a task"),text:$model.taskDraft)
+                    .textFieldStyle(.plain)
+                    .font(.system(size:10,design:.rounded))
+                    .padding(.horizontal,10).frame(height:31)
+                    .background(Color.white.opacity(0.05),in:RoundedRectangle(cornerRadius:9,style:.continuous))
+                    .accessibilityLabel(Text(L10n.text("Add a task")))
+                    .onSubmit(model.addTask)
+                Button(action:model.addTask) { Image(systemName:"plus") }
+                    .buttonStyle(NotchIconButtonStyle()).accessibilityLabel(Text(L10n.text("Add task")))
+                    .disabled(model.taskDraft.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)
+            }
+            if model.tasks.isEmpty {
+                Text("Your next small step goes here.")
+                    .font(.system(size:9)).foregroundStyle(.white.opacity(0.43)).padding(.vertical,3)
+            } else {
+                ForEach(model.tasks.prefix(5)) { task in
+                    HStack(spacing:8) {
+                        Button { model.toggleTask(task) } label: {
+                            Image(systemName:task.isComplete ? "checkmark.circle.fill":"circle")
+                                .font(.system(size:13)).foregroundStyle(task.isComplete ? Color.white:Color.white.opacity(0.53))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(Text(L10n.text(task.isComplete ? "Mark task incomplete":"Mark task complete")+": "+task.title))
+                        Text(task.title).font(.system(size:10,design:.rounded)).lineLimit(1)
+                            .strikethrough(task.isComplete).foregroundStyle(.white.opacity(task.isComplete ? 0.48:0.88))
+                        Spacer(minLength:0)
+                        Button { model.removeTask(task) } label:{Image(systemName:"xmark")}
+                            .buttonStyle(NotchIconButtonStyle()).accessibilityLabel(Text(L10n.text("Remove task")+": "+task.title))
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .background(Color.white.opacity(0.065),in:RoundedRectangle(cornerRadius:15,style:.continuous))
+        .overlay(RoundedRectangle(cornerRadius:15,style:.continuous).strokeBorder(Color.white.opacity(0.09),lineWidth:1))
     }
 }
 

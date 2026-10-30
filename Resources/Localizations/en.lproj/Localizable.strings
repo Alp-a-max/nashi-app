@@ -66,11 +66,13 @@
 "A LITTLE LESS FILE FUSS. A LITTLE MORE FLOW." = "A LITTLE LESS FILE FUSS. A LITTLE MORE FLOW.";
 "A LITTLE LESS FILE FUSS. A LITTLE MORE FLOW.\nCONVERT, EDIT, AND ORGANIZE — RIGHT ON YOUR MAC." = "A LITTLE LESS FILE FUSS. A LITTLE MORE FLOW.\nCONVERT, EDIT, AND ORGANIZE — RIGHT ON YOUR MAC.";
 "A LITTLE PEAR. A LOT OF POSSIBILITY." = "A LITTLE PEAR. A LOT OF POSSIBILITY.";
+"A LITTLE SPACE FOR FOCUS" = "A LITTLE SPACE FOR FOCUS";
 "A NEW FORM.\nIN A TAP." = "A NEW FORM.\nIN A TAP.";
 "A PAGE RANGE IS OUTSIDE THE PDF." = "A PAGE RANGE IS OUTSIDE THE PDF.";
 "A PERFECT LANDING SPOT" = "A PERFECT LANDING SPOT";
 "A PHOTO IS UNAVAILABLE. TRY A FRESH PUBLIC POST LINK." = "A PHOTO IS UNAVAILABLE. TRY A FRESH PUBLIC POST LINK.";
 "A PLACE FOR FRESH FILES." = "A PLACE FOR FRESH FILES.";
+"A QUIET 25-MINUTE SESSION" = "A QUIET 25-MINUTE SESSION";
 "A SELECTED ITEM IS MISSING." = "A SELECTED ITEM IS MISSING.";
 "A SPLIT POINT LIES OUTSIDE THE VIDEO." = "A SPLIT POINT LIES OUTSIDE THE VIDEO.";
 "A SUBTITLE CUE ENDS BEFORE IT STARTS." = "A SUBTITLE CUE ENDS BEFORE IT STARTS.";
@@ -91,11 +93,13 @@
 "A little less file fuss. A little more flow." = "A little less file fuss. A little more flow.";
 "A little less file fuss. A little more flow.\nConvert, edit, and organize — right on your Mac." = "A little less file fuss. A little more flow.\nConvert, edit, and organize — right on your Mac.";
 "A little pear. A lot of possibility." = "A little pear. A lot of possibility.";
+"A little space for focus" = "A little space for focus";
 "A new form.\nIn a tap." = "A new form.\nIn a tap.";
 "A page range is outside the PDF." = "A page range is outside the PDF.";
 "A perfect landing spot" = "A perfect landing spot";
 "A photo is unavailable. Try a fresh public post link." = "A photo is unavailable. Try a fresh public post link.";
 "A place for fresh files." = "A place for fresh files.";
+"A quiet 25-minute session" = "A quiet 25-minute session";
 "A selected item is missing." = "A selected item is missing.";
 "A split point lies outside the video." = "A split point lies outside the video.";
 "A subtitle cue ends before it starts." = "A subtitle cue ends before it starts.";
@@ -105,6 +109,7 @@
 "ACTIONS" = "ACTIONS";
 "ADD" = "ADD";
 "ADD A BLEEP OR SILENCE RANGE." = "ADD A BLEEP OR SILENCE RANGE.";
+"ADD A TASK" = "ADD A TASK";
 "ADD BG" = "ADD BG";
 "ADD FIELD" = "ADD FIELD";
 "ADD FILES" = "ADD FILES";
@@ -116,6 +121,7 @@
 "ADD REDACTION" = "ADD REDACTION";
 "ADD SELECTED RANGE" = "ADD SELECTED RANGE";
 "ADD SPLIT" = "ADD SPLIT";
+"ADD TASK" = "ADD TASK";
 "ADD TO AN EXISTING FLOAT" = "ADD TO AN EXISTING FLOAT";
 "ADDING PAGES…" = "ADDING PAGES…";
 "ADDITIONAL OPTIONS" = "ADDITIONAL OPTIONS";
@@ -179,9 +185,11 @@
 "Add Redaction" = "Add Redaction";
 "Add Split" = "Add Split";
 "Add a bleep or silence range." = "Add a bleep or silence range.";
+"Add a task" = "Add a task";
 "Add files" = "Add files";
 "Add or change files" = "Add or change files";
 "Add selected range" = "Add selected range";
+"Add task" = "Add task";
 "Add to an existing Float" = "Add to an existing Float";
 "Adding pages…" = "Adding pages…";
 "Additional options" = "Additional options";
@@ -884,6 +892,8 @@
 "FLOAT BEHAVIOUR" = "FLOAT BEHAVIOUR";
 "FLOAT OPTIONS" = "FLOAT OPTIONS";
 "FLOAT · 1 FILE" = "FLOAT · 1 FILE";
+"FOCUS TIMER" = "FOCUS TIMER";
+"FOCUS TIMER PROGRESS" = "FOCUS TIMER PROGRESS";
 "FOLDERS" = "FOLDERS";
 "FONT" = "FONT";
 "FONT SIZE" = "FONT SIZE";
@@ -956,6 +966,8 @@
 "Float · %@ files" = "Float · %@ files";
 "Float · %lld files" = "Float · %lld files";
 "Float · 1 file" = "Float · 1 file";
+"Focus timer" = "Focus timer";
+"Focus timer progress" = "Focus timer progress";
 "Folder · %@" = "Folder · %@";
 "Folder · %lld" = "Folder · %lld";
 "Folders" = "Folders";
@@ -1171,6 +1183,8 @@
 "MAKE IT YOURS · NASHI" = "MAKE IT YOURS · NASHI";
 "MAKE SOME SPACE. KEEP WHAT MATTERS." = "MAKE SOME SPACE. KEEP WHAT MATTERS.";
 "MAKE YOUR POINT." = "MAKE YOUR POINT.";
+"MARK TASK COMPLETE" = "MARK TASK COMPLETE";
+"MARK TASK INCOMPLETE" = "MARK TASK INCOMPLETE";
 "MARKER" = "MARKER";
 "MATCH SOURCE" = "MATCH SOURCE";
 "MAXIMIZE" = "MAXIMIZE";
@@ -1211,6 +1225,8 @@
 "Make it yours · Nashi" = "Make it yours · Nashi";
 "Make some space. Keep what matters." = "Make some space. Keep what matters.";
 "Make your point." = "Make your point.";
+"Mark task complete" = "Mark task complete";
+"Mark task incomplete" = "Mark task incomplete";
 "Marker" = "Marker";
 "Match Source" = "Match Source";
 "Match source" = "Match source";
@@ -1282,6 +1298,7 @@
 "NORMALIZE VOLUME" = "NORMALIZE VOLUME";
 "NOTCH MODE" = "NOTCH MODE";
 "NOTE" = "NOTE";
+"NOTES AND TASKS STAY ON THIS MAC." = "NOTES AND TASKS STAY ON THIS MAC.";
 "NOTHING HERE YET" = "NOTHING HERE YET";
 "NOTHING HERE YET. PASTE SOMETHING OR MAKE YOUR FIRST FRESH COPY." = "NOTHING HERE YET. PASTE SOMETHING OR MAKE YOUR FIRST FRESH COPY.";
 "NUMBER" = "NUMBER";
@@ -1324,6 +1341,7 @@
 "Normalize Volume" = "Normalize Volume";
 "Notch mode" = "Notch mode";
 "Note" = "Note";
+"Notes and tasks stay on this Mac." = "Notes and tasks stay on this Mac.";
 "Nothing here yet" = "Nothing here yet";
 "Nothing here yet. Paste something or make your first fresh copy." = "Nothing here yet. Paste something or make your first fresh copy.";
 "Number" = "Number";
@@ -1423,6 +1441,7 @@
 "PASTED IMAGE" = "PASTED IMAGE";
 "PASTED TEXT" = "PASTED TEXT";
 "PAUSE" = "PAUSE";
+"PAUSE FOCUS TIMER" = "PAUSE FOCUS TIMER";
 "PDF FORM APPEARANCES COULD NOT BE PREPARED." = "PDF FORM APPEARANCES COULD NOT BE PREPARED.";
 "PDF LAYOUT" = "PDF LAYOUT";
 "PDF OUTPUT LAYOUT" = "PDF OUTPUT LAYOUT";
@@ -1496,6 +1515,7 @@
 "Pasted image" = "Pasted image";
 "Pasted text" = "Pasted text";
 "Pause" = "Pause";
+"Pause focus timer" = "Pause focus timer";
 "Photos" = "Photos";
 "Pick a folder you work in. Fresh copies are saved beside the originals by default." = "Pick a folder you work in. Fresh copies are saved beside the originals by default.";
 "Pin" = "Pin";
@@ -1543,6 +1563,7 @@
 "QUALITY" = "QUALITY";
 "QUALITY (%)" = "QUALITY (%)";
 "QUICK LOOK" = "QUICK LOOK";
+"QUICK NOTE" = "QUICK NOTE";
 "QUICK PICKS" = "QUICK PICKS";
 "QUICK PREVIEW" = "QUICK PREVIEW";
 "QUIT NASHI" = "QUIT NASHI";
@@ -1550,6 +1571,7 @@
 "Quality (%)" = "Quality (%)";
 "Quick Look" = "Quick Look";
 "Quick Preview" = "Quick Preview";
+"Quick note" = "Quick note";
 "Quit Nashi" = "Quit Nashi";
 "READ QR CODES" = "READ QR CODES";
 "READ QR CODES · NASHI" = "READ QR CODES · NASHI";
@@ -1591,10 +1613,12 @@
 "REMOVE SELECTED RANGE" = "REMOVE SELECTED RANGE";
 "REMOVE SILENCE AT THE BEGINNING AND END" = "REMOVE SILENCE AT THE BEGINNING AND END";
 "REMOVE SILENCE FROM BEGINNING AND END" = "REMOVE SILENCE FROM BEGINNING AND END";
+"REMOVE TASK" = "REMOVE TASK";
 "RENDERED PAGES EXCEED 512 MB. CHOOSE A LOWER DPI OR SPLIT THE PDF FIRST." = "RENDERED PAGES EXCEED 512 MB. CHOOSE A LOWER DPI OR SPLIT THE PDF FIRST.";
 "REPLACE SELECTED AUDIO WITH" = "REPLACE SELECTED AUDIO WITH";
 "REPORT SAVED." = "REPORT SAVED.";
 "RESET" = "RESET";
+"RESET FOCUS TIMER" = "RESET FOCUS TIMER";
 "RESIZE" = "RESIZE";
 "RESIZE IMAGE" = "RESIZE IMAGE";
 "RESTORE CLIPS" = "RESTORE CLIPS";
@@ -1653,12 +1677,14 @@
 "Remove selected range" = "Remove selected range";
 "Remove silence at the beginning and end" = "Remove silence at the beginning and end";
 "Remove silence from beginning and end" = "Remove silence from beginning and end";
+"Remove task" = "Remove task";
 "Rendered pages exceed 512 MB. Choose a lower DPI or split the PDF first." = "Rendered pages exceed 512 MB. Choose a lower DPI or split the PDF first.";
 "Rendering page %@" = "Rendering page %@";
 "Rendering page %lld" = "Rendering page %lld";
 "Replace selected audio with" = "Replace selected audio with";
 "Report saved." = "Report saved.";
 "Reset" = "Reset";
+"Reset focus timer" = "Reset focus timer";
 "Resize" = "Resize";
 "Resize Image" = "Resize Image";
 "Restore Clips" = "Restore Clips";
@@ -1712,6 +1738,7 @@
 "SAVE WITH BACKGROUND" = "SAVE WITH BACKGROUND";
 "SAVED 1 NEW FILE. ORIGINALS KEPT." = "SAVED 1 NEW FILE. ORIGINALS KEPT.";
 "SAVED IN POST ORDER IN A NEW INSTAGRAM FOLDER." = "SAVED IN POST ORDER IN A NEW INSTAGRAM FOLDER.";
+"SAVED ON THIS MAC" = "SAVED ON THIS MAC";
 "SAVING COLLAGE…" = "SAVING COLLAGE…";
 "SAVING DOCUMENT…" = "SAVING DOCUMENT…";
 "SAVING IMAGES…" = "SAVING IMAGES…";
@@ -1731,6 +1758,7 @@
 "SELECTED FOLDER" = "SELECTED FOLDER";
 "SEND IT ON ITS WAY" = "SEND IT ON ITS WAY";
 "SERIF" = "SERIF";
+"SESSION COMPLETE" = "SESSION COMPLETE";
 "SET" = "SET";
 "SET UP MEDIA TOOLS" = "SET UP MEDIA TOOLS";
 "SET UP MEDIA TOOLS FOR THIS CODEC, OR USE OPEN TO PREVIEW IN ITS DEFAULT APP." = "SET UP MEDIA TOOLS FOR THIS CODEC, OR USE OPEN TO PREVIEW IN ITS DEFAULT APP.";
@@ -1793,6 +1821,7 @@
 "SQUARE · 1:1" = "SQUARE · 1:1";
 "STAGING CANNOT BE A SYMBOLIC LINK." = "STAGING CANNOT BE A SYMBOLIC LINK.";
 "START" = "START";
+"START FOCUS TIMER" = "START FOCUS TIMER";
 "START HERE" = "START HERE";
 "START MUST BE BEFORE END, WITHIN THE MEDIA DURATION." = "START MUST BE BEFORE END, WITHIN THE MEDIA DURATION.";
 "STARTING DOWNLOAD…" = "STARTING DOWNLOAD…";
@@ -1847,6 +1876,7 @@
 "Saved %lld new files. Originals kept." = "Saved %lld new files. Originals kept.";
 "Saved 1 new file. Originals kept." = "Saved 1 new file. Originals kept.";
 "Saved in post order in a new Instagram folder." = "Saved in post order in a new Instagram folder.";
+"Saved on this Mac" = "Saved on this Mac";
 "Saving collage…" = "Saving collage…";
 "Saving document…" = "Saving document…";
 "Saving images…" = "Saving images…";
@@ -1868,6 +1898,7 @@
 "Selected folder" = "Selected folder";
 "Send it on its way" = "Send it on its way";
 "Serif" = "Serif";
+"Session complete" = "Session complete";
 "Set" = "Set";
 "Set up Nashi tools" = "Set up Nashi tools";
 "Set up media tools" = "Set up media tools";
@@ -1931,6 +1962,7 @@
 "Square · 1:1" = "Square · 1:1";
 "Staging cannot be a symbolic link." = "Staging cannot be a symbolic link.";
 "Start" = "Start";
+"Start focus timer" = "Start focus timer";
 "Start must be before End, within the media duration." = "Start must be before End, within the media duration.";
 "Starting download…" = "Starting download…";
 "Stereo" = "Stereo";
@@ -2005,6 +2037,7 @@
 "THUMBNAIL" = "THUMBNAIL";
 "TIMES (SECONDS)" = "TIMES (SECONDS)";
 "TINT" = "TINT";
+"TO-DO LIST" = "TO-DO LIST";
 "TOO MANY FILES ALREADY USE THIS NAME." = "TOO MANY FILES ALREADY USE THIS NAME.";
 "TOO MANY IMAGE REDIRECTS." = "TOO MANY IMAGE REDIRECTS.";
 "TOO MANY UPDATE FILES." = "TOO MANY UPDATE FILES.";
@@ -2094,6 +2127,7 @@
 "Thumbnail" = "Thumbnail";
 "Times (seconds)" = "Times (seconds)";
 "Tint" = "Tint";
+"To-do list" = "To-do list";
 "Too many files already use this name." = "Too many files already use this name.";
 "Too many image redirects." = "Too many image redirects.";
 "Too many update files." = "Too many update files.";
@@ -2211,6 +2245,7 @@
 "WHEEL FINISH" = "WHEEL FINISH";
 "WHEEL SIZE" = "WHEEL SIZE";
 "WHITES" = "WHITES";
+"WIDGETS" = "WIDGETS";
 "WIDTH" = "WIDTH";
 "WINDOW" = "WINDOW";
 "WINDOW ARRANGEMENT" = "WINDOW ARRANGEMENT";
@@ -2220,6 +2255,7 @@
 "WINDOWS COULD NOT CREATE A TRAY ICON." = "WINDOWS COULD NOT CREATE A TRAY ICON.";
 "WORKING" = "WORKING";
 "WORKING…" = "WORKING…";
+"WRITE A THOUGHT TO KEEP NEARBY…" = "WRITE A THOUGHT TO KEEP NEARBY…";
 "Wait for the processed preview to finish before resetting." = "Wait for the processed preview to finish before resetting.";
 "Waveform" = "Waveform";
 "Welcome to Nashi" = "Welcome to Nashi";
@@ -2227,6 +2263,7 @@
 "Wheel finish" = "Wheel finish";
 "Wheel size" = "Wheel size";
 "Whites" = "Whites";
+"Widgets" = "Widgets";
 "Width" = "Width";
 "Window" = "Window";
 "Window arrangement" = "Window arrangement";
@@ -2236,6 +2273,7 @@
 "Windows could not create a tray icon." = "Windows could not create a tray icon.";
 "Working" = "Working";
 "Working…" = "Working…";
+"Write a thought to keep nearby…" = "Write a thought to keep nearby…";
 "YOU CAN ALSO CHOOSE FILES FROM THE MAIN WINDOW." = "YOU CAN ALSO CHOOSE FILES FROM THE MAIN WINDOW.";
 "YOU CHOOSE WHEN TO DOWNLOAD AND INSTALL." = "YOU CHOOSE WHEN TO DOWNLOAD AND INSTALL.";
 "YOU HAVE THE LATEST PUBLISHED WINDOWS VERSION." = "YOU HAVE THE LATEST PUBLISHED WINDOWS VERSION.";
@@ -2251,6 +2289,7 @@
 "YOUR KIND OF FLOW." = "YOUR KIND OF FLOW.";
 "YOUR LIBRARY" = "YOUR LIBRARY";
 "YOUR NEXT FRESH COPY WILL LAND HERE." = "YOUR NEXT FRESH COPY WILL LAND HERE.";
+"YOUR NEXT SMALL STEP GOES HERE." = "YOUR NEXT SMALL STEP GOES HERE.";
 "YOUR ORIGINAL STAYS SAFE" = "YOUR ORIGINAL STAYS SAFE";
 "YOUR TOOLS ARE READY." = "YOUR TOOLS ARE READY.";
 "YOUR TOOLS ARE READY. LET’S PUT THAT NEXT FILE TO GOOD USE." = "YOUR TOOLS ARE READY. LET’S PUT THAT NEXT FILE TO GOOD USE.";
@@ -2272,6 +2311,7 @@
 "Your go-to exports." = "Your go-to exports.";
 "Your kind of flow." = "Your kind of flow.";
 "Your next fresh copy will land here." = "Your next fresh copy will land here.";
+"Your next small step goes here." = "Your next small step goes here.";
 "Your original stays safe" = "Your original stays safe";
 "Your tools are ready." = "Your tools are ready.";
 "Your tools are ready. Let’s put that next file to good use." = "Your tools are ready. Let’s put that next file to good use.";

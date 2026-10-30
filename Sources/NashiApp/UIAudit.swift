@@ -6,7 +6,7 @@ import NashiUpdates
 
 struct UIAuditOptions {
     static let scenes=["home.empty","home.selected","library","settings.general","settings.formats","settings.updates","wheel.pdf-multiple","editor.crop-image","editor.annotate-image","editor.frame-image"]
-    static let notchScenes=["island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.tools","island.expanded.history"]
+    static let notchScenes=["island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.tools","island.expanded.history","island.expanded.widgets"]
     static let supportedScenes=scenes+notchScenes
     var output:URL
     var scenes=Self.scenes
@@ -140,11 +140,16 @@ struct UIAuditError:LocalizedError { let message:String;init(_ message:String){s
         let view:AnyView,size:NSSize
         switch scene {
         case "home.empty","home.selected","library":view=AnyView(HomeView(state:state,updater:updater));size=NSSize(width:700,height:580)
-        case "island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.tools","island.expanded.history":
-            let model=NotchPanelModel()
+        case "island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.tools","island.expanded.history","island.expanded.widgets":
+            let model=NotchPanelModel(defaults:defaults)
             if scene=="island.expanded.tools" {model.select(.tools)}
             if scene=="island.expanded.history" {model.select(.history)}
             if scene=="island.expanded.drop" {model.select(.drop)}
+            if scene=="island.expanded.widgets" {
+                model.quickNote="Plan the next small step.\nKeep a clean copy."
+                model.tasks=[.init(title:"Review the image"),.init(title:"Export a fresh copy",isComplete:true)]
+                model.select(.widgets)
+            }
             view=AnyView(NotchWorkspaceView(state:state,model:model,onChooseFiles:{},onChooseTool:{_ in}))
             size=scene=="island.collapsed" ? NSSize(width:164,height:44):scene=="island.collapsed-progress" ? NSSize(width:266,height:44):NSSize(width:540,height:470)
         case "settings.general","settings.formats","settings.updates":
