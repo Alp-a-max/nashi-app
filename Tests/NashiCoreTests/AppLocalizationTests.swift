@@ -70,4 +70,72 @@ final class AppLocalizationTests:XCTestCase {
         XCTAssertTrue(AppLocalization.matches("Crop Image",query:"recadrer",language:"fr"))
         for code in ["png","MP4","Ctrl+Shift","⌘S","00:01.250"] { XCTAssertEqual(AppLocalization.text(code,language:"fr"),code) }
     }
+
+    func testNotchPlacementUsesCameraSafeAreaAndCentersOnScreen() {
+        let screen=NotchScreenMetrics(frame:CGRect(x:0,y:0,width:1512,height:982),visibleFrame:CGRect(x:0,y:0,width:1512,height:958),safeAreaTop:37,auxiliaryTopLeftArea:CGRect(x:0,y:945,width:660,height:37),auxiliaryTopRightArea:CGRect(x:852,y:945,width:660,height:37))
+        let placement=NotchPanelGeometry.placement(on:screen,size:CGSize(width:500,height:300))
+        XCTAssertTrue(placement.isNotched)
+        XCTAssertEqual(placement.notchWidth,192)
+        XCTAssertEqual(placement.frame,CGRect(x:506,y:645,width:500,height:300))
+    }
+
+    func testNotchlessPlacementSitsBelowVisibleMenuBarArea() {
+        let screen=NotchScreenMetrics(frame:CGRect(x:0,y:0,width:1440,height:900),visibleFrame:CGRect(x:0,y:0,width:1440,height:875),safeAreaTop:0,auxiliaryTopLeftArea:nil,auxiliaryTopRightArea:nil)
+        let placement=NotchPanelGeometry.placement(on:screen,size:CGSize(width:500,height:300))
+        XCTAssertFalse(placement.isNotched)
+        XCTAssertEqual(placement.notchWidth,0)
+        XCTAssertEqual(placement.frame,CGRect(x:470,y:569,width:500,height:300))
+    }
+
+    func testInvalidAuxiliaryAreasFallBackToNotchlessPlacement() {
+        let screen=NotchScreenMetrics(frame:CGRect(x:0,y:0,width:1200,height:800),visibleFrame:CGRect(x:0,y:0,width:1200,height:776),safeAreaTop:32,auxiliaryTopLeftArea:CGRect(x:0,y:768,width:600,height:32),auxiliaryTopRightArea:CGRect(x:590,y:768,width:610,height:32))
+        XCTAssertFalse(NotchPanelGeometry.placement(on:screen,size:CGSize(width:400,height:200)).isNotched)
+    }
+
+    func testHoverCollapseUsesTheSpecifiedDelay() {
+        XCTAssertEqual(NotchInteractionPolicy.collapseDelayMilliseconds,250)
+    }
+
+    func testHoverExpandsAndDelayedCollapseCanRunAfterPointerLeaves() {
+        var state=NotchInteractionState()
+        state.pointerEntered()
+        XCTAssertTrue(state.isExpanded)
+        XCTAssertFalse(state.mayCollapse)
+        state.pointerExited()
+        XCTAssertTrue(state.mayCollapse)
+        XCTAssertTrue(state.collapseIfAllowed())
+        XCTAssertFalse(state.isExpanded)
+    }
+
+    func testDragKeepsPanelExpandedUntilDropSessionEnds() {
+        var state=NotchInteractionState()
+        state.draggingEntered()
+        state.pointerExited()
+        XCTAssertTrue(state.isExpanded)
+        XCTAssertFalse(state.mayCollapse)
+        XCTAssertFalse(state.collapseIfAllowed())
+        state.draggingEnded()
+        XCTAssertTrue(state.mayCollapse)
+        XCTAssertTrue(state.collapseIfAllowed())
+    }
+
+    func testToolGridUsesTheFullCurrentCatalog() {
+        XCTAssertEqual(ToolKind.allCases.count,27)
+        XCTAssertEqual(FeatureCatalog.toolSymbols.count,27)
+    }
+
+    func testNotchCountsKeepTheirLocalizationPlaceholders() {
+        XCTAssertEqual(AppLocalization.text("{0} files",language:"tr"),"{0} dosya")
+        XCTAssertEqual(AppLocalization.text("{0} tools",language:"tr"),"{0} araçlar")
+        XCTAssertEqual(AppLocalization.text("Convert to {0}",language:"tr"),"{0} biçimine dönüştür")
+        XCTAssertEqual(AppLocalization.text("Convert {0} to {1}",language:"tr"),"{0} dosyasını {1} biçimine dönüştür")
+    }
+
+    func testFormatChipsUseCompatibleTargetsFromExistingCatalog() {
+        XCTAssertEqual(NotchDropShelfTargets.formats(for:URL(fileURLWithPath:"/tmp/photo.JPG")),FeatureCatalog.formats(for:[URL(fileURLWithPath:"/tmp/photo.JPG")]))
+        XCTAssertTrue(NotchDropShelfTargets.formats(for:URL(fileURLWithPath:"/tmp/unknown.bin")).isEmpty)
+        XCTAssertTrue(NotchDropShelfTargets.formats(for:URL(fileURLWithPath:"/tmp/photo.jpg")).contains("png"))
+        XCTAssertFalse(NotchDropShelfTargets.formats(for:URL(fileURLWithPath:"/tmp/photo.jpg")).contains("mp3"))
+    }
+
 }

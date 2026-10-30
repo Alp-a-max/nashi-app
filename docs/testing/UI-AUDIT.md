@@ -36,6 +36,12 @@ Both audit commands accept these optional filters:
 --language en|tr|fr|both
 ```
 
+Capture all notch scenes in the same four-cell matrix:
+
+```sh
+.build/debug/Nashi --ui-audit build/ui-audit-notch --scenes island.collapsed,island.collapsed-progress,island.expanded.drop,island.expanded.tools,island.expanded.history --appearance both --language both
+```
+
 Unknown scenes/options, empty selections, repeated scenes and invalid themes/languages fail. No filter means the complete matrix: **10 scenes × 2 appearances × 2 languages = 40 captures per platform**.
 
 | Scene ID | Production surface |
