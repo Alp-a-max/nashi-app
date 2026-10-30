@@ -17,17 +17,15 @@ public sealed partial class MainWindow
         surface.MouseEnter += (_, _) =>
         {
             islandCollapseTimer?.Stop();
-            pillAutoHideTimer?.Stop();
             if (!islandExpanded && preferences.Value.PillVisibilityMode != "shortcut") SetIslandExpanded(true);
         };
-        surface.MouseLeave += (_, _) => ScheduleIslandCollapse();
-        surface.LostKeyboardFocus += (_, _) => ScheduleIslandCollapse();
+        surface.MouseLeave += (_, _) => { if(preferences.Value.PillVisibilityMode!="shortcut")ScheduleIslandCollapse(); };
+        surface.LostKeyboardFocus += (_, _) => { if(preferences.Value.PillVisibilityMode!="shortcut")ScheduleIslandCollapse(); };
         surface.DragEnter += (_, e) =>
         {
             if (busy || !SupportsIslandDrop(e.Data)) return;
             islandDragActive = true;
             islandCollapseTimer?.Stop();
-            pillAutoHideTimer?.Stop();
             if (!islandExpanded) SetIslandExpanded(true);
             if (islandHint is not null) islandHint.Text = IslandText("Drop to add files", "Dosya eklemek için bırak");
             e.Handled = true;

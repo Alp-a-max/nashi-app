@@ -57,7 +57,7 @@ public sealed partial class MainWindow:Window
     private Button? islandLabelButton,islandNowMediaToggle,islandMediaPlaybackToggle,islandCompactMediaToggle;private Popup? islandMediaPopup;private TextBox? islandActionSearchField;private Slider? islandCompactMediaSeek;private Image? islandCompactPopupArtwork;private TextBlock? islandCompactMediaPosition,islandCompactMediaDuration,islandCompactMediaTitle;private bool islandCompactMediaSeeking;
     private Grid? islandWidgetHost;private readonly Dictionary<string,Button> islandTabButtons=[];private readonly Dictionary<string,string> islandBluetoothNames=[];private RichTextBox? islandNote;private TextBox? islandTodoEntry;private TextBlock? islandTimerLabel,islandMediaTitle,islandMediaArtistLabel,islandMediaPosition,islandMediaDuration,islandMirrorStatus;private Slider? islandMediaSeek;private Image? islandMediaArtwork,islandMirrorImage;private BitmapSource? islandCurrentArtwork;private Button? islandMirrorToggle;private MediaCapture? islandMirrorCapture;private System.Windows.Threading.DispatcherTimer? islandMirrorRefresh,islandBluetoothPoll;private bool islandMirrorFrameBusy,islandBluetoothInitialScan=true,islandBluetoothPollBusy,islandMediaPlaying,islandMediaSeekUserChanging,islandMediaRefreshBusy;private string? islandCurrentMedia,islandMediaArtist,islandMediaArtworkKey,islandBluetoothActivity,islandCurrentWidgetTab;private DateTimeOffset islandBluetoothActivityUntil;private readonly string islandWidgetPath;private string islandNoteText="";private string? islandNoteRichText;private string? islandCalendarPath,islandCalendarUrl;private readonly ObservableCollection<string> islandTodos=[];private readonly ObservableCollection<string> islandCompletedTodos=[];private readonly HashSet<string> islandFavoriteTodos=new(StringComparer.Ordinal);private readonly ObservableCollection<string> islandTray=[];private readonly ObservableCollection<string> islandPocket=[];private TimeSpan islandTimerRemaining=TimeSpan.FromMinutes(25);private System.Windows.Threading.DispatcherTimer? islandTimer,islandCalendarRefresh,islandStatusTimer;private GlobalSystemMediaTransportControlsSessionManager? islandMediaManager;private GlobalSystemMediaTransportControlsSession? islandObservedMediaSession;private bool islandMediaEventsConnected,islandTimerRunning;private static readonly HttpClient islandCalendarHttp=new(){Timeout=TimeSpan.FromSeconds(20)};
     private TextBox? islandPrompterScript;private TextBlock? islandPrompterPreview,islandPrompterSpeedLabel;private ScrollViewer? islandPrompterScroll;private Button? islandPrompterToggle;private System.Windows.Threading.DispatcherTimer? islandPrompterTimer;private string islandPrompterText="";private double islandPrompterSpeed=34,islandPrompterOffset;private bool islandPrompterRunning;
-    private bool busy,checking,toolSetupOffered;private WindowsUpdate? update;private Border? updateBanner;private PillHotEdgeWindow? pillHotEdge;private System.Windows.Threading.DispatcherTimer? pillAutoHideTimer;private HwndSource? pillSource;private bool hotkeyRegistered;private bool? appliedPillMode;
+    private bool busy,checking,toolSetupOffered;private WindowsUpdate? update;private Border? updateBanner;private HwndSource? pillSource;private bool hotkeyRegistered;private bool? appliedPillMode;
     private ToolSetupWindow? toolSetupWindow;
     private readonly bool monitorToolSetup;
     internal bool UpdateBannerVisible=>updateBanner?.Visibility==Visibility.Visible;
@@ -69,10 +69,6 @@ public sealed partial class MainWindow:Window
     internal int UIAuditHotkeyMessages{get;private set;}
     internal bool UIAuditPillModeEnabled=>pillModeEnabled;
     internal bool UIAuditHiddenByAutomation=>islandHiddenByAutomation;
-    internal int UIAuditHotEdgeEnterCount=>pillHotEdge?.EnterCount??0;
-    internal IntPtr UIAuditHotEdgeHandle=>pillHotEdge is null?IntPtr.Zero:new WindowInteropHelper(pillHotEdge).Handle;
-    internal bool UIAuditHotEdgeVisible=>pillHotEdge?.IsVisible==true;
-    internal Point UIAuditHotEdgePoint=>pillHotEdge?.PointToScreen(new Point(pillHotEdge.ActualWidth/2,pillHotEdge.ActualHeight/2))??new Point();
     internal bool UIAuditActionsPopupOpen=>islandActionPopup?.IsOpen==true;
     internal FrameworkElement? UIAuditActionsPopupSurface=>islandActionPopup?.Child as FrameworkElement;
     internal void UIAuditShowWorkspace(bool libraryView)=>ShowIslandWorkspace(libraryView);
@@ -184,7 +180,7 @@ public sealed partial class MainWindow:Window
         islandHint=new TextBlock{Text="",FontSize=10,Foreground=new SolidColorBrush(Color.FromArgb(190,255,255,255)),VerticalAlignment=VerticalAlignment.Center,HorizontalAlignment=HorizontalAlignment.Right,TextAlignment=TextAlignment.Right,TextTrimming=TextTrimming.CharacterEllipsis,MaxWidth=76};activity.Children.Add(islandHint);face.Children.Add(activity);
         islandCompactFace=face;islandShapeContent.Children.Add(face);
         var clickContent=new TextBlock{Text=""};AutomationProperties.SetName(clickContent,"Open Nashi pill");var clickTarget=new Button{Background=Brushes.Transparent,BorderThickness=new Thickness(0),Focusable=true,Cursor=Cursors.Hand,Content=clickContent};AutomationProperties.SetName(clickTarget,"Open Nashi pill");
-        clickTarget.Click+=(_,_)=>{if(islandExpanded)SetIslandExpanded(false);else{SetNoActivate(false);Activate();SetIslandExpanded(true);}};islandLabelButton=clickTarget;islandShapeContent.Children.Add(clickTarget);
+        clickTarget.Click+=(_,_)=>{if(islandExpanded)SetIslandExpanded(false);else if(preferences.Value.PillVisibilityMode!="shortcut"){SetNoActivate(false);Activate();SetIslandExpanded(true);}};islandLabelButton=clickTarget;islandShapeContent.Children.Add(clickTarget);
         islandDashboard=BuildIslandDashboard();islandDashboard.PreviewMouseDown+=(_,_)=>ActivatePillForInput();islandDashboard.Visibility=Visibility.Collapsed;islandShapeContent.Children.Add(islandDashboard);
         AttachIslandPointerInteractions(islandPanel);
         SizeChanged+=(_,_)=>{if(pillModeEnabled)PositionIsland();};
@@ -193,7 +189,6 @@ public sealed partial class MainWindow:Window
         {
             if(pillModeEnabled)PositionIsland();
             if(pillModeEnabled&&preferences.Value.PillVisibilityMode=="shortcut")HidePillWindow();
-            else if(pillModeEnabled&&preferences.Value.PillVisibilityMode=="automatic"&&!hasInitialFiles)SchedulePillAutoHide(TimeSpan.FromSeconds(3));
             if(!App.IsSmokeTest)
             {
                 islandStatusTimer=new System.Windows.Threading.DispatcherTimer{Interval=TimeSpan.FromSeconds(30)};islandStatusTimer.Tick+=(_,_)=>{UpdateIslandHint();RenderIslandDashboard();};islandStatusTimer.Start();
@@ -201,7 +196,7 @@ public sealed partial class MainWindow:Window
                 if(islandCalendarUrl is not null){islandCalendarRefresh=new System.Windows.Threading.DispatcherTimer{Interval=TimeSpan.FromMinutes(15)};islandCalendarRefresh.Tick+=async(_,_)=>await RefreshIslandCalendarSubscription();islandCalendarRefresh.Start();_ = RefreshIslandCalendarSubscription();}
             }
         };
-        Closed+=(_,_)=>{islandStatusTimer?.Stop();islandCalendarRefresh?.Stop();islandPrompterTimer?.Stop();pillAutoHideTimer?.Stop();pillHotEdge?.Close();UnregisterPillHotkey();StopIslandMediaEvents();};
+        Closed+=(_,_)=>{islandStatusTimer?.Stop();islandCalendarRefresh?.Stop();islandPrompterTimer?.Stop();UnregisterPillHotkey();StopIslandMediaEvents();};
         SwitchPillMode(preferences.Value.PillModeEnabled,initialExpanded:hasInitialFiles);
     }
     private void UpdatePillClip(){if(islandPanel is {ActualWidth:>0,ActualHeight:>0})islandPanel.Clip=PillGeometry.Create(islandPanel.ActualWidth,islandPanel.ActualHeight);}
@@ -215,15 +210,14 @@ public sealed partial class MainWindow:Window
             if(islandCompactFace is not null)islandCompactFace.Visibility=initialExpanded?Visibility.Collapsed:Visibility.Visible;if(islandDashboard is not null)islandDashboard.Visibility=initialExpanded?Visibility.Visible:Visibility.Collapsed;
             islandExpanded=initialExpanded;MinWidth=0;MinHeight=0;WindowStartupLocation=WindowStartupLocation.Manual;
             if(preferences.Value.PillVisibilityMode=="always"&&!initialExpanded)SetIslandExpanded(false,false);
-            if(!App.IsSmokeTest||App.IsPillModeSmoke){SetupPillHotEdge();InitializePillHotkey();}
+            if(!App.IsSmokeTest||App.IsPillModeSmoke)InitializePillHotkey();
             SetNoActivate(true);
-            if(IsLoaded&&preferences.Value.PillVisibilityMode=="automatic"&&!initialExpanded)SchedulePillAutoHide(TimeSpan.FromSeconds(3));
             if(IsLoaded&&preferences.Value.PillVisibilityMode=="shortcut"&&!initialExpanded)HidePillWindow();
             if(IsLoaded)Show();
         }
         else
         {
-            UnregisterPillHotkey();pillHotEdge?.Close();pillHotEdge=null;pillAutoHideTimer?.Stop();if(islandExpanded)SetIslandExpanded(false,false);
+            UnregisterPillHotkey();if(islandExpanded)SetIslandExpanded(false,false);
             Content=null;Content=mainWorkspace;MinWidth=760;MinHeight=540;Width=Math.Max(980,Width);Height=Math.Max(720,Height);WindowStartupLocation=WindowStartupLocation.CenterScreen;ShowInTaskbar=true;Show();Activate();
         }
         UpdatePillClip();
@@ -232,14 +226,7 @@ public sealed partial class MainWindow:Window
     {
         if(appliedPillMode!=preferences.Value.PillModeEnabled){SwitchPillMode(preferences.Value.PillModeEnabled);return;}
         if(!pillModeEnabled)return;
-        UnregisterPillHotkey();SetupPillHotEdge();InitializePillHotkey();
-        if(preferences.Value.PillVisibilityMode=="automatic")SchedulePillAutoHide(TimeSpan.FromSeconds(3));else pillAutoHideTimer?.Stop();
-    }
-    private void SetupPillHotEdge()
-    {
-        if(!pillModeEnabled||App.IsSmokeTest&&!App.IsPillModeSmoke||preferences.Value.PillVisibilityMode!="automatic"||!preferences.Value.PillHotEdgeEnabled){pillHotEdge?.Close();pillHotEdge=null;return;}
-        pillHotEdge??=new PillHotEdgeWindow(this,()=>{islandHiddenByAutomation=false;Show();SetIslandExpanded(true);});
-        pillHotEdge.Position();pillHotEdge.ShowRespectingPointer();
+        UnregisterPillHotkey();InitializePillHotkey();
     }
     private void InitializePillHotkey()
     {
@@ -256,22 +243,12 @@ public sealed partial class MainWindow:Window
     private void TogglePillFromShortcut()
     {
         if(!pillModeEnabled)return;
-        if(!IsVisible||islandHiddenByAutomation){islandHiddenByAutomation=false;Show();pillHotEdge?.Hide();SetNoActivate(false);Activate();SetIslandExpanded(true);}
+        if(!IsVisible||islandHiddenByAutomation){islandHiddenByAutomation=false;Show();SetNoActivate(false);Activate();SetIslandExpanded(true);}
         else{SetIslandExpanded(false,false);HidePillWindow();}
     }
     private void HidePillWindow()
     {
-        if(!pillModeEnabled)return;islandHiddenByAutomation=true;SetupPillHotEdge();pillHotEdge?.DisarmIfPointerInside();Hide();StopHiddenPolling();
-    }
-    private void SchedulePillAutoHide(TimeSpan delay)
-    {
-        if(!pillModeEnabled||preferences.Value.PillVisibilityMode!="automatic")return;
-        pillAutoHideTimer??=new System.Windows.Threading.DispatcherTimer{Interval=delay};pillAutoHideTimer.Stop();pillAutoHideTimer.Interval=delay;
-        pillAutoHideTimer.Tick-=HideAfterIdle;pillAutoHideTimer.Tick+=HideAfterIdle;pillAutoHideTimer.Start();
-    }
-    private void HideAfterIdle(object? sender,EventArgs e)
-    {
-        pillAutoHideTimer?.Stop();if(!pillModeEnabled||islandPanel?.IsMouseOver==true||islandDragActive)return;HidePillWindow();
+        if(!pillModeEnabled)return;islandHiddenByAutomation=true;Hide();StopHiddenPolling();
     }
     private void StopHiddenPolling(){islandStatusTimer?.Stop();islandBluetoothPoll?.Stop();}
     private void UnregisterPillHotkey()
@@ -715,7 +692,7 @@ public sealed partial class MainWindow:Window
     {
         var item=Button(title,()=>{islandCollapseTimer?.Stop();islandActionPopup?.SetCurrentValue(Popup.IsOpenProperty,false);action();});item.Tag=title;item.HorizontalContentAlignment=HorizontalAlignment.Left;item.Padding=new(12,9,12,9);item.Margin=new(2);item.Background=Brushes.Transparent;item.BorderThickness=new(0);item.Foreground=new SolidColorBrush(Color.FromRgb(245,246,248));host.Children.Add(item);return item;
     }
-    private void OpenIslandWidget(string tab){ShowIslandWidgetTab(tab);if(pillModeEnabled&&(!IsVisible||islandHiddenByAutomation)){islandHiddenByAutomation=false;Show();pillHotEdge?.Hide();}SetIslandExpanded(true);}
+    private void OpenIslandWidget(string tab){ShowIslandWidgetTab(tab);if(pillModeEnabled&&(!IsVisible||islandHiddenByAutomation)){islandHiddenByAutomation=false;Show();}SetIslandExpanded(true);}
     internal static void ThemePopupMenu(ContextMenu menu)
     {
         menu.SetResourceReference(Control.BackgroundProperty,"Surface");menu.SetResourceReference(Control.ForegroundProperty,"Ink");menu.SetResourceReference(Control.BorderBrushProperty,"Line");menu.BorderThickness=new(1);menu.Padding=new(6);menu.SnapsToDevicePixels=true;
@@ -744,8 +721,8 @@ public sealed partial class MainWindow:Window
         }
         else{islandPill.Width=targetWidth;islandPanel.Opacity=1;}
         PositionIsland();
-        if(expanded){pillAutoHideTimer?.Stop();if(!IsActive)SetNoActivate(true);}
-        else{SetNoActivate(true);if(preferences.Value.PillVisibilityMode=="automatic")SchedulePillAutoHide(TimeSpan.FromSeconds(3));}
+        if(expanded){if(!IsActive)SetNoActivate(true);}
+        else SetNoActivate(true);
         if(expanded&&IsLoaded&&monitorToolSetup)Dispatcher.BeginInvoke(OfferFirstRunTools);
     }
     private void StartIslandBluetoothMonitor()

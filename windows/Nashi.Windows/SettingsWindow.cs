@@ -31,10 +31,8 @@ public sealed partial class SettingsWindow:Window
         var enabled=new CheckBox{Content=PillText("Enable compact pill mode","Kompakt hap modunu etkinleştir"),IsChecked=store.Value.PillModeEnabled,Margin=new Thickness(4,12,4,12)};
         enabled.Checked+=(_,_)=>Save(store.Value with{PillModeEnabled=true});enabled.Unchecked+=(_,_)=>Save(store.Value with{PillModeEnabled=false});page.Children.Add(enabled);
         page.Children.Add(new TextBlock{Text=PillText("The pill is off by default. Its data stays on this PC.","Hap modu varsayılan olarak kapalıdır. Verileri bu bilgisayarda kalır."),Foreground=Theme.Brush("Muted"),TextWrapping=TextWrapping.Wrap,Margin=new Thickness(4,0,4,8)});
-        AddChoice(PillText("Visibility","Görünürlük"),new[]{("automatic",PillText("Automatic","Otomatik")),("always",PillText("Always visible","Her zaman görünür")),("shortcut",PillText("Shortcut only","Yalnızca kısayol"))},store.Value.PillVisibilityMode,value=>Save(store.Value with{PillVisibilityMode=value}));
+        AddChoice(PillText("Visibility","Görünürlük"),new[]{("shortcut",PillText("Shortcut toggle","Kısayol ile aç / kapat")),("always",PillText("Always visible","Her zaman görünür"))},store.Value.PillVisibilityMode,value=>Save(store.Value with{PillVisibilityMode=value}));
         AddChoice(PillText("Show / hide shortcut","Göster / gizle kısayolu"),new[]{("Ctrl+Alt+N","Ctrl+Alt+N"),("Ctrl+Shift+N","Ctrl+Shift+N"),("Ctrl+Alt+Space","Ctrl+Alt+Space")},store.Value.PillHotkey,value=>Save(store.Value with{PillHotkey=value}));
-        var hotEdge=new CheckBox{Content=PillText("Enable the top edge hot zone","Üst kenar sıcak bölgesini etkinleştir"),IsChecked=store.Value.PillHotEdgeEnabled,Margin=new Thickness(4,12,4,12)};
-        hotEdge.Checked+=(_,_)=>Save(store.Value with{PillHotEdgeEnabled=true});hotEdge.Unchecked+=(_,_)=>Save(store.Value with{PillHotEdgeEnabled=false});page.Children.Add(hotEdge);
     }
     private void AddChoice(string title,(string Value,string Label)[] choices,string selected,Action<string> save)
     {

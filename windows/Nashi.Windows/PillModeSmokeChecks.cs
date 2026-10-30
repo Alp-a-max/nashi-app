@@ -11,10 +11,6 @@ namespace Nashi.Windows;
 
 internal static class PillModeSmokeChecks
 {
-    [StructLayout(LayoutKind.Sequential)] private struct NativePoint { internal int X,Y; }
-    [StructLayout(LayoutKind.Sequential)] private struct NativeRect { internal int Left,Top,Right,Bottom; }
-    [DllImport("user32.dll")] private static extern IntPtr WindowFromPoint(NativePoint point);
-    [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr hwnd,out NativeRect rect);
     internal static int Run(string output)
     {
         output=Path.GetFullPath(output);
@@ -22,49 +18,35 @@ internal static class PillModeSmokeChecks
         Directory.CreateDirectory(output);File.WriteAllText(Path.Combine(output,".nashi-pill-smoke"),"Nashi pill interaction smoke\n");
         var checks=new List<object>();var failures=new List<string>();void Check(string name,bool pass,string? detail=null){checks.Add(new{name,passed=pass,detail});if(!pass)failures.Add(name+(detail is null?"":": "+detail));}
         var data=Path.Combine(output,"isolated-data");Directory.CreateDirectory(data);var library=new LibraryStore(data);var preferences=new PreferencesStore(data);
-        preferences.Save(new Preferences{Language="en",PillModeEnabled=true,PillVisibilityMode="automatic",PillHotkey="Ctrl+Alt+N",PillHotEdgeEnabled=true,AutomaticUpdateChecks=false,KeepInTray=false,Feedback=false,Animations=false});
+        preferences.Save(new Preferences{Language="en",PillModeEnabled=true,PillVisibilityMode="shortcut",PillHotkey="Ctrl+Alt+N",AutomaticUpdateChecks=false,KeepInTray=false,Feedback=false,Animations=false});
         var window=new MainWindow(library:library,checkForUpdates:false,offerToolSetup:false);
         try
         {
-            DesktopInput.MovePointer(new Point(SystemParameters.PrimaryScreenWidth-40,SystemParameters.PrimaryScreenHeight-90));
+            DesktopInput.MovePointer(new Point(SystemParameters.PrimaryScreenWidth/2,2));
             window.Show();DesktopInput.Pump(450);
-            Check("collapsed-at-start",window.IsVisible&&Math.Abs(window.ActualWidth-PillGeometry.CollapsedWidth)<1&&Math.Abs(window.ActualHeight-PillGeometry.CollapsedHeight)<1,$"visible={window.IsVisible}, size={window.ActualWidth:0}x{window.ActualHeight:0}");
+            Check("hidden-at-start",!window.IsVisible,$"visible={window.IsVisible}, size={window.ActualWidth:0}x{window.ActualHeight:0}");
             Check("single-shaped-root",window.UIAuditIslandTab=="now"&&window.Content is System.Windows.Controls.Border,"the pill did not use its single border root and Now view");
             Check("global-hotkey-registered",window.UIAuditHotkeyRegistered,"RegisterHotKey failed or the shortcut is already in use");
+            DesktopInput.Pump(500);Check("top-edge-does-not-open",!window.IsVisible,"moving the pointer to the screen edge revealed the pill");
             var pickerFolder=Path.Combine(output,"pdf-picker-fixture");Directory.CreateDirectory(pickerFolder);var pixels=new byte[16*16*4];for(var y=0;y<16;y++)for(var x=0;x<16;x++){var offset=(y*16+x)*4;pixels[offset]=(byte)(x*16);pixels[offset+1]=(byte)(y*16);pixels[offset+2]=(byte)(255-x*16);pixels[offset+3]=255;}var fixtureImage=BitmapSource.Create(16,16,96,96,PixelFormats.Bgra32,null,pixels,16*4);fixtureImage.Freeze();var fixturePdf=Path.Combine(pickerFolder,"Synthetic edit.pdf");ImageEngine.Save(fixtureImage,fixturePdf,"pdf");File.WriteAllBytes(Path.Combine(pickerFolder,"Synthetic image.png"),[137,80,78,71]);File.WriteAllText(Path.Combine(pickerFolder,"Synthetic archive.zip"),"fixture");
             var pdfPicker=new NashiFilePickerWindow(window,pickerFolder,["pdf"],allowMultiple:false,purpose:"pdf");pdfPicker.Show();DesktopInput.Pump(250);var pdfPickerScoped=pdfPicker.UIAuditHasVisibleFile("Synthetic edit.pdf")&&!pdfPicker.UIAuditHasVisibleFile("Synthetic image.png")&&!pdfPicker.UIAuditHasVisibleFile("Synthetic archive.zip")&&pdfPicker.UIAuditSingleSelection;Check("pdf-tool-picker-is-scoped",pdfPickerScoped,"the PDF edit picker must show PDFs only and use single selection");if(pdfPickerScoped)Capture(pdfPicker,Path.Combine(output,"pdf-tool-picker.png"));pdfPicker.Close();
             var organizerTask=PdfOrganizer.CreateAsync(window,fixturePdf);var organizerUntil=DateTime.UtcNow.AddSeconds(10);while(!organizerTask.IsCompleted&&DateTime.UtcNow<organizerUntil)DesktopInput.Pump(35);if(!organizerTask.IsCompleted)throw new TimeoutException("Synthetic PDF organizer did not render in time.");var organizer=organizerTask.GetAwaiter().GetResult();organizer.Show();DesktopInput.Pump(180);var pageThumbnail=VisualDescendants(organizer).OfType<System.Windows.Controls.Image>().FirstOrDefault(image=>image.Source is BitmapSource);var thumbnails=pageThumbnail is null?0:1;var colorful=false;if(pageThumbnail?.Source is BitmapSource thumbnail){var thumbnailPixels=new byte[thumbnail.PixelWidth*thumbnail.PixelHeight*4];new FormatConvertedBitmap(thumbnail,PixelFormats.Bgra32,null,0).CopyPixels(thumbnailPixels,thumbnail.PixelWidth*4,0);colorful=Enumerable.Range(0,thumbnailPixels.Length/4).Any(index=>thumbnailPixels[index*4]!=thumbnailPixels[index*4+1]||thumbnailPixels[index*4+1]!=thumbnailPixels[index*4+2]);}var organizerVisual=organizer.Pages.Length==1&&thumbnails==1&&colorful;Check("pdf-organizer-renders-page-thumbnail",organizerVisual,$"pages={organizer.Pages.Length}, thumbnails={thumbnails}, colorful={colorful}");if(organizerVisual)Capture(organizer,Path.Combine(output,"pdf-organizer.png"));organizer.Close();
-            Capture(window,Path.Combine(output,"pill-collapsed.png"));
-
-            DesktopInput.MovePointer(window.PointToScreen(new Point(window.ActualWidth/2,window.ActualHeight/2)));
-            var hovered=WaitFor(()=>window.UIAuditIslandExpanded,TimeSpan.FromMilliseconds(900));
-            Check("hover-expands",hovered&&window.ActualWidth<=PillGeometry.ExpandedWidth+1&&window.ActualHeight<=PillGeometry.ExpandedHeight+1,$"expanded={window.UIAuditIslandExpanded}, size={window.ActualWidth:0}x{window.ActualHeight:0}");
-            Capture(window,Path.Combine(output,"pill-expanded-now.png"));
-
-            DesktopInput.MovePointer(new Point(SystemParameters.PrimaryScreenWidth-40,SystemParameters.PrimaryScreenHeight-90));
-            var collapsed=WaitFor(()=>!window.UIAuditIslandExpanded,TimeSpan.FromSeconds(1));
-            Check("leave-collapses-after-delay",collapsed,"the panel stayed expanded after the pointer left");
-            var hidden=WaitFor(()=>!window.IsVisible,TimeSpan.FromSeconds(4));
-            Check("auto-hides-after-idle",hidden,"the automatic mode left a persistent pill visible");
-
-            if(!PillVisibilityState.IsSuppressed())
-            {
-                var hotEdgePoint=window.UIAuditHotEdgePoint;
-                DesktopInput.MovePointer(hotEdgePoint);
-                var hotEdge=WaitFor(()=>window.IsVisible&&window.UIAuditIslandExpanded,TimeSpan.FromSeconds(1));
-                var hit=WindowFromPoint(new NativePoint{X=(int)hotEdgePoint.X,Y=(int)hotEdgePoint.Y});
-                GetWindowRect(window.UIAuditHotEdgeHandle,out var edgeBounds);
-                Check("hot-edge-reopens",hotEdge,$"visible={window.UIAuditHotEdgeVisible}, point={hotEdgePoint.X:0},{hotEdgePoint.Y:0}, bounds={edgeBounds.Left},{edgeBounds.Top},{edgeBounds.Right},{edgeBounds.Bottom}, hit=0x{hit.ToInt64():X}, edge=0x{window.UIAuditHotEdgeHandle.ToInt64():X}, enter={window.UIAuditHotEdgeEnterCount}");
-            }
-            else checks.Add(new{name="hot-edge-reopens",passed=(bool?)null,detail="not run: Windows is suppressing interruption surfaces"});
-
-            window.Show();window.UIAuditPresentIsland(true);DesktopInput.Pump(100);
             var before=window.UIAuditHotkeyMessages;SendShortcut(window);
-            var shortcutHides=WaitFor(()=>!window.IsVisible,TimeSpan.FromMilliseconds(900));
-            Check("registered-shortcut-hides",shortcutHides,$"Ctrl+Alt+N did not hide the panel (WM_HOTKEY messages: {window.UIAuditHotkeyMessages-before}, visible={window.IsVisible}, expanded={window.UIAuditIslandExpanded}, enabled={window.UIAuditPillModeEnabled}, hidden={window.UIAuditHiddenByAutomation})");
-            before=window.UIAuditHotkeyMessages;SendShortcut(window);
             var shortcutShows=WaitFor(()=>window.IsVisible&&window.UIAuditIslandExpanded,TimeSpan.FromMilliseconds(900));
-            Check("registered-shortcut-shows",shortcutShows,$"Ctrl+Alt+N did not restore the expanded panel (WM_HOTKEY messages: {window.UIAuditHotkeyMessages-before}, visible={window.IsVisible}, expanded={window.UIAuditIslandExpanded}, enabled={window.UIAuditPillModeEnabled}, hidden={window.UIAuditHiddenByAutomation})");
+            Check("registered-shortcut-opens",shortcutShows,$"Ctrl+Alt+N did not open the panel (WM_HOTKEY messages: {window.UIAuditHotkeyMessages-before}, visible={window.IsVisible}, expanded={window.UIAuditIslandExpanded})");
+            Capture(window,Path.Combine(output,"pill-expanded-now.png"));
+            window.UIAuditPresentIsland(false);DesktopInput.Pump(120);Capture(window,Path.Combine(output,"pill-collapsed.png"));
+            DesktopInput.MovePointer(window.PointToScreen(new Point(window.ActualWidth/2,window.ActualHeight/2)));DesktopInput.Pump(500);
+            Check("hover-does-not-expand",window.IsVisible&&!window.UIAuditIslandExpanded,"pointer hover expanded the shortcut-controlled pill");
+            window.UIAuditPresentIsland(true);DesktopInput.Pump(100);
+            DesktopInput.MovePointer(new Point(SystemParameters.PrimaryScreenWidth-40,SystemParameters.PrimaryScreenHeight-90));DesktopInput.Pump(700);
+            Check("pointer-leave-does-not-close",window.IsVisible&&window.UIAuditIslandExpanded,"the shortcut-controlled panel closed after pointer leave");
+            before=window.UIAuditHotkeyMessages;SendShortcut(window);
+            var shortcutHides=WaitFor(()=>!window.IsVisible,TimeSpan.FromMilliseconds(900));
+            Check("registered-shortcut-closes",shortcutHides,$"Ctrl+Alt+N did not close the panel (WM_HOTKEY messages: {window.UIAuditHotkeyMessages-before}, visible={window.IsVisible})");
+            before=window.UIAuditHotkeyMessages;SendShortcut(window);
+            var shortcutReopens=WaitFor(()=>window.IsVisible&&window.UIAuditIslandExpanded,TimeSpan.FromMilliseconds(900));
+            Check("registered-shortcut-reopens",shortcutReopens,$"Ctrl+Alt+N did not reopen the panel (WM_HOTKEY messages: {window.UIAuditHotkeyMessages-before}, visible={window.IsVisible}, expanded={window.UIAuditIslandExpanded})");
             Capture(window,Path.Combine(output,"pill-hotkey-expanded.png"));
 
             foreach(var tab in new[]{"now","tray","media","notes","todo","tools"})
