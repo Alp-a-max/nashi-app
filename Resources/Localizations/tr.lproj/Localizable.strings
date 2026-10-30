@@ -1438,6 +1438,7 @@
 "PASTE A PUBLIC MEDIA LINK TO BEGIN." = "BAŞLAMAK İÇİN HERKESE AÇIK BİR MEDYA BAĞLANTISI YAPIŞTIR.";
 "PASTE A PUBLIC VIDEO, IMAGE OR AUDIO PAGE LINK" = "HERKESE AÇIK VİDEO, GÖRSEL VEYA SES BAĞLANTISI YAPIŞTIR";
 "PASTE A VIDEO SHARE LINK OR IMAGE ADDRESS" = "VİDEO PAYLAŞIM BAĞLANTISI VEYA GÖRSEL ADRESİ YAPIŞTIR";
+"PASTE FILES, TEXT, AN IMAGE, OR A LINK FROM THE CLIPBOARD" = "PANODAN DOSYA, METİN, GÖRSEL VEYA BAĞLANTI YAPIŞTIR";
 "PASTE LINK" = "BAĞLANTI YAPIŞTIR";
 "PASTE ONE COMPLETE PUBLIC MEDIA LINK." = "HERKESE AÇIK BİR MEDYA BAĞLANTISININ TAMAMINI YAPIŞTIR.";
 "PASTED IMAGE" = "YAPIŞTIRILAN GÖRSEL";
@@ -1512,6 +1513,7 @@
 "Paste a public media link to begin." = "Başlamak için herkese açık bir medya bağlantısı yapıştır.";
 "Paste a public video, image or audio page link" = "Herkese açık video, görsel veya ses bağlantısı yapıştır";
 "Paste a video share link or image address" = "Video paylaşım bağlantısı veya görsel adresi yapıştır";
+"Paste files, text, an image, or a link from the clipboard" = "Panodan dosya, metin, görsel veya bağlantı yapıştır";
 "Paste link" = "Bağlantı yapıştır";
 "Paste one complete public media link." = "Herkese açık bir medya bağlantısının tamamını yapıştır.";
 "Pasted image" = "Yapıştırılan görsel";

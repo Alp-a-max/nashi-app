@@ -337,6 +337,14 @@ struct NotchWorkspaceView: View {
                     .buttonStyle(NotchCapsuleButtonStyle())
                     .accessibilityHint(Text(L10n.text("Keep these files together in a floating shelf")))
                 }
+                if state.inputs.isEmpty {
+                    Button { state.pasteContent() } label: {
+                        Label(L10n.text("Paste"),systemImage:"doc.on.clipboard")
+                    }
+                    .buttonStyle(NotchCapsuleButtonStyle())
+                    .accessibilityIdentifier("NashiPasteFromClipboard")
+                    .accessibilityHint(Text(L10n.text("Paste files, text, an image, or a link from the clipboard")))
+                }
                 Button(action:onChooseFiles) { Label(L10n.text("Choose files"),systemImage:"folder") }
                     .buttonStyle(NotchCapsuleButtonStyle()).accessibilityLabel(Text(L10n.text("Choose files")))
             }

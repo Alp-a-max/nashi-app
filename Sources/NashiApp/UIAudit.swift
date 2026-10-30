@@ -6,7 +6,7 @@ import NashiUpdates
 
 struct UIAuditOptions {
     static let scenes=["home.empty","home.selected","library","settings.general","settings.formats","settings.updates","wheel.pdf-multiple","editor.crop-image","editor.annotate-image","editor.frame-image"]
-    static let notchScenes=["island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.tools","island.expanded.history","island.expanded.widgets"]
+    static let notchScenes=["island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.drop.empty","island.expanded.tools","island.expanded.history","island.expanded.widgets"]
     static let supportedScenes=scenes+notchScenes
     var output:URL
     var scenes=Self.scenes
@@ -140,11 +140,11 @@ struct UIAuditError:LocalizedError { let message:String;init(_ message:String){s
         let view:AnyView,size:NSSize
         switch scene {
         case "home.empty","home.selected","library":view=AnyView(HomeView(state:state,updater:updater));size=NSSize(width:700,height:580)
-        case "island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.tools","island.expanded.history","island.expanded.widgets":
+        case "island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.drop.empty","island.expanded.tools","island.expanded.history","island.expanded.widgets":
             let model=NotchPanelModel(defaults:defaults)
             if scene=="island.expanded.tools" {model.select(.tools)}
             if scene=="island.expanded.history" {model.select(.history)}
-            if scene=="island.expanded.drop" {model.select(.drop)}
+            if scene=="island.expanded.drop" || scene=="island.expanded.drop.empty" {model.select(.drop)}
             if scene=="island.expanded.widgets" {
                 model.quickNote="Plan the next small step.\nKeep a clean copy."
                 model.tasks=[.init(title:"Review the image"),.init(title:"Export a fresh copy",isComplete:true)]
@@ -178,6 +178,9 @@ struct UIAuditError:LocalizedError { let message:String;init(_ message:String){s
         try await settle(recorder:isEditor ? recorder:nil)
         guard let content=host.contentView else{throw UIAuditError("Scene has no content view")}
         observedPreferences=try await verifyPreferences(scene:scene,appearance:appearance,language:language,defaults:defaults,view:content)
+        if scene=="island.expanded.drop.empty" && !ownAccessibilityElements(content).contains(where:{$0.accessibilityIdentifier()=="NashiPasteFromClipboard"}) {
+            throw UIAuditError("The empty Drop Shelf does not expose its clipboard paste action.")
+        }
         let issues=recorder.issues(in:content.bounds,editor:isEditor)
         try save(scene:scene,appearance:appearance,language:language,view:content,recorder:recorder,issues:issues)
     }

@@ -1438,6 +1438,7 @@
 "PASTE A PUBLIC MEDIA LINK TO BEGIN." = "COLLEZ UN LIEN MÉDIA PUBLIC POUR COMMENCER.";
 "PASTE A PUBLIC VIDEO, IMAGE OR AUDIO PAGE LINK" = "COLLEZ LE LIEN D’UNE PAGE PUBLIQUE DE VIDÉO, D’IMAGE OU D’AUDIO";
 "PASTE A VIDEO SHARE LINK OR IMAGE ADDRESS" = "COLLEZ LE LIEN DE PARTAGE D’UNE VIDÉO OU L’ADRESSE D’UNE IMAGE";
+"PASTE FILES, TEXT, AN IMAGE, OR A LINK FROM THE CLIPBOARD" = "PASTE FILES, TEXT, AN IMAGE, OR A LINK FROM THE CLIPBOARD";
 "PASTE LINK" = "COLLER LE LIEN";
 "PASTE ONE COMPLETE PUBLIC MEDIA LINK." = "COLLEZ UN LIEN MÉDIA PUBLIC COMPLET.";
 "PASTED IMAGE" = "IMAGE COLLÉE";
@@ -1512,6 +1513,7 @@
 "Paste a public media link to begin." = "Collez un lien média public pour commencer.";
 "Paste a public video, image or audio page link" = "Collez le lien d’une page publique de vidéo, d’image ou d’audio";
 "Paste a video share link or image address" = "Collez le lien de partage d’une vidéo ou l’adresse d’une image";
+"Paste files, text, an image, or a link from the clipboard" = "Paste files, text, an image, or a link from the clipboard";
 "Paste link" = "Coller le lien";
 "Paste one complete public media link." = "Collez un lien média public complet.";
 "Pasted image" = "Image collée";
