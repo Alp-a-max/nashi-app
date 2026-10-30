@@ -17,7 +17,8 @@ public sealed partial class MainWindow
         surface.MouseEnter += (_, _) =>
         {
             islandCollapseTimer?.Stop();
-            if (!islandExpanded) SetIslandExpanded(true);
+            pillAutoHideTimer?.Stop();
+            if (!islandExpanded && preferences.Value.PillVisibilityMode != "shortcut") SetIslandExpanded(true);
         };
         surface.MouseLeave += (_, _) => ScheduleIslandCollapse();
         surface.LostKeyboardFocus += (_, _) => ScheduleIslandCollapse();
@@ -26,6 +27,7 @@ public sealed partial class MainWindow
             if (busy || !SupportsIslandDrop(e.Data)) return;
             islandDragActive = true;
             islandCollapseTimer?.Stop();
+            pillAutoHideTimer?.Stop();
             if (!islandExpanded) SetIslandExpanded(true);
             if (islandHint is not null) islandHint.Text = IslandText("Drop to add files", "Dosya eklemek için bırak");
             e.Handled = true;

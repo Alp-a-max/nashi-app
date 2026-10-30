@@ -21,7 +21,7 @@ internal static class UIAudit
     [
         "home.empty", "home.selected", "library", "settings.general", "settings.formats",
         "settings.updates", "wheel.pdf-multiple", "editor.crop-image", "editor.annotate-image", "editor.frame-image",
-        "island.collapsed", "island.expanded.actions", "island.expanded.notes", "island.actions-popup"
+        "island.collapsed", "island.expanded.actions", "island.expanded.notes", "island.actions-popup", "island.file-picker"
     ];
     private static readonly string[] Appearances = ["light", "dark"];
     private static readonly string[] Languages = ["en", "tr"];
@@ -191,6 +191,7 @@ internal static class UIAudit
             {
                 "home.empty" or "home.selected" or "library" or "island.collapsed" or
                     "island.expanded.actions" or "island.expanded.notes" or "island.actions-popup" => owner,
+                "island.file-picker" => owner.UIAuditCreateFilePicker(fixtures.PickerFolder),
                 "settings.general" or "settings.formats" or "settings.updates" => Settings(owner, preferences, library, capture.Scene),
                 "wheel.pdf-multiple" => new WheelWindow(owner, owner.UIAuditToolChoices, _ => { }),
                 "editor.crop-image" => new ToolEditor(owner, "crop", "Crop Image", fixtures.Image, preview: fixtures.Bitmap),
@@ -200,7 +201,8 @@ internal static class UIAudit
             };
             if (!ReferenceEquals(subject, owner)) ShowAtMinimum(subject);
             var ready = WaitUntil(() => Ready(subject) && (capture.Scene != "island.actions-popup" ||
-                owner.UIAuditActionsPopupOpen && owner.UIAuditActionsPopupSurface is { ActualWidth: > 0, ActualHeight: > 0 }), TimeSpan.FromSeconds(8));
+                owner.UIAuditActionsPopupOpen && owner.UIAuditActionsPopupSurface is { ActualWidth: > 0, ActualHeight: > 0 }) &&
+                (capture.Scene != "island.file-picker" || subject is NashiFilePickerWindow picker && picker.UIAuditReady), TimeSpan.FromSeconds(8));
             capture.Checks["loadedAndArranged"] = ready;
             capture.Checks["privateLibrary"] = Path.GetFullPath(library.DirectoryPath).StartsWith(Path.GetFullPath(stateRoot) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
             capture.Checks["language"] = L10n.Language == capture.Language;
@@ -317,6 +319,7 @@ internal static class UIAudit
             "island.expanded.actions" => subject == owner && owner.UIAuditIslandExpanded && owner.UIAuditIslandTab == "actions",
             "island.expanded.notes" => subject == owner && owner.UIAuditIslandExpanded && owner.UIAuditIslandTab == "notes",
             "island.actions-popup" => subject == owner && owner.UIAuditActionsPopupOpen && IsOpaqueBlack(owner.UIAuditActionsPopupSurface),
+            "island.file-picker" => subject is NashiFilePickerWindow picker && picker.UIAuditReady && picker.UIAuditHasSyntheticFiles && IsOpaqueBlack(picker.UIAuditSurface),
             "settings.general" or "settings.formats" or "settings.updates" => subject is SettingsWindow &&
                 Descendants<ListBox>(subject).Any(list => Equals(list.SelectedItem, capture.Scene.Split('.')[1] switch { "formats" => "Formats", "updates" => "Updates", _ => "General" })),
             "wheel.pdf-multiple" => subject is WheelWindow && owner.SelectedFiles.SequenceEqual(fixtures.Pdfs) &&
@@ -455,6 +458,7 @@ internal static class UIAudit
     {
         Directory.CreateDirectory(directory);
         var outputs = Path.Combine(directory, "outputs"); Directory.CreateDirectory(outputs);
+        var pickerFolder = Path.Combine(directory, "picker-fixtures"); Directory.CreateDirectory(pickerFolder);
         // Fixed pixels, no external images/fonts/codecs or network requests.
         const int width = 640, height = 400;
         var pixels = new byte[width * height * 4];
@@ -489,8 +493,10 @@ internal static class UIAudit
         if (File.ReadAllText(text) != fixtureText || ImageEngine.Load(image) is not { PixelWidth: width, PixelHeight: height })
             throw new InvalidOperationException("Private clipboard text/image import roundtrip failed.");
         ImageEngine.Save(bitmap, pdf1, "pdf"); ImageEngine.Save(bitmap, pdf2, "pdf");
+        File.Copy(image, Path.Combine(pickerFolder, "Example image.png"));
+        File.Copy(text, Path.Combine(pickerFolder, "Example notes.txt"));
         var created = new DateTimeOffset(2026, 1, 15, 12, 0, 0, TimeSpan.Zero);
-        return new Fixtures(image, text, [pdf1, pdf2], outputs, bitmap,
+        return new Fixtures(image, text, [pdf1, pdf2], outputs, pickerFolder, bitmap,
         [
             new(new Guid("11111111-1111-1111-1111-111111111111"), created, "Convert", [image]),
             new(new Guid("22222222-2222-2222-2222-222222222222"), created.AddMinutes(-1), "Pasted text", [text]),
@@ -500,7 +506,7 @@ internal static class UIAudit
     }
 
     private static string Relative(string root, string path) => Path.GetRelativePath(root, path).Replace(Path.DirectorySeparatorChar, '/');
-    private sealed record Fixtures(string Image, string Text, string[] Pdfs, string Outputs, BitmapSource Bitmap, LibraryEntry[] Entries);
+    private sealed record Fixtures(string Image, string Text, string[] Pdfs, string Outputs, string PickerFolder, BitmapSource Bitmap, LibraryEntry[] Entries);
     private sealed class Capture(string scene, string appearance, string language)
     {
         public string Scene { get; } = scene;

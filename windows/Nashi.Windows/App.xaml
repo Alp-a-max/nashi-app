@@ -3,11 +3,11 @@
  <local:ChoiceTextConverter x:Key="ChoiceText"/>
  <DataTemplate x:Key="ChoiceLabel"><TextBlock><TextBlock.Text><MultiBinding Converter="{StaticResource ChoiceText}"><Binding/><Binding Path="Language" Source="{x:Static local:LanguageState.Shared}"/></MultiBinding></TextBlock.Text></TextBlock></DataTemplate>
  <DataTemplate x:Key="MediaSourceLabel"><TextBlock Text="{Binding Name}"/></DataTemplate>
- <SolidColorBrush x:Key="Ink" Color="#E7EBE6"/><SolidColorBrush x:Key="Paper" Color="#111A14"/>
- <SolidColorBrush x:Key="Surface" Color="#1C281F"/><SolidColorBrush x:Key="Inset" Color="#151F18"/>
- <SolidColorBrush x:Key="Muted" Color="#A9B5A8"/><SolidColorBrush x:Key="Line" Color="#344237"/>
- <SolidColorBrush x:Key="Sand" Color="#3C3421"/>
- <SolidColorBrush x:Key="Sage" Color="#202A38"/><SolidColorBrush x:Key="Gold" Color="#0A84FF"/>
+ <SolidColorBrush x:Key="Ink" Color="#F5F5F7"/><SolidColorBrush x:Key="Paper" Color="#111114"/>
+ <SolidColorBrush x:Key="Surface" Color="#1B1B20"/><SolidColorBrush x:Key="Inset" Color="#151519"/>
+ <SolidColorBrush x:Key="Muted" Color="#A5A5AD"/><SolidColorBrush x:Key="Line" Color="#35353B"/>
+ <SolidColorBrush x:Key="Sand" Color="#30291D"/>
+ <SolidColorBrush x:Key="Sage" Color="#302B20"/><SolidColorBrush x:Key="Gold" Color="#D3B46B"/>
  <Style TargetType="Window"><Setter Property="Background" Value="{DynamicResource Paper}"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="FontFamily" Value="Segoe UI"/><Setter Property="FontSize" Value="14"/></Style>
  <Style TargetType="ContextMenu"><Setter Property="Background" Value="{DynamicResource Surface}"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="BorderBrush" Value="{DynamicResource Line}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="6"/><Setter Property="MaxHeight" Value="420"/><Setter Property="SnapsToDevicePixels" Value="True"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContextMenu"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="12" Padding="{TemplateBinding Padding}"><ScrollViewer CanContentScroll="True" MaxHeight="420"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle"/></ScrollViewer></Border></ControlTemplate></Setter.Value></Setter></Style>
  <Style TargetType="MenuItem"><Setter Property="Background" Value="{DynamicResource Surface}"/><Setter Property="Foreground" Value="{DynamicResource Ink}"/><Setter Property="Padding" Value="11,7"/><Setter Property="SnapsToDevicePixels" Value="True"/></Style>
@@ -19,7 +19,7 @@
    <Border x:Name="Chrome" CornerRadius="12" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True" TextBlock.TextAlignment="Center"/></Border>
    <ControlTemplate.Triggers>
     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.85"/></Trigger>
-    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Gold}"/><Setter TargetName="Chrome" Property="BorderThickness" Value="2"/></Trigger>
+    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Gold}"/><Setter TargetName="Chrome" Property="BorderThickness" Value="1.5"/></Trigger>
     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
     <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.65"/></Trigger>
    </ControlTemplate.Triggers>

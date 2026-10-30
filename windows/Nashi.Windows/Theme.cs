@@ -9,14 +9,15 @@ namespace Nashi.Windows;
 internal static class Theme
 {
     internal static bool Dark{get;private set;}
-    internal static Brush Primary=>new SolidColorBrush(Color.FromRgb(0,122,255));
+    internal static Brush Primary=>new SolidColorBrush(Color.FromRgb(211,180,107));
     internal static Brush Brush(string name)=>(Brush)Application.Current.FindResource(name);
     internal static void Apply(string appearance)
     {
         Dark=appearance=="dark"||(appearance=="system"&&Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize","AppsUseLightTheme",1) is int value&&value==0);
-        foreach(var (key,light,dark) in new[]{("Paper","#F5F5F7","#16171A"),("Ink","#1D1D1F","#F5F5F7"),("Surface","#FFFFFF","#222327"),("Inset","#F0F0F2","#191A1E"),("Muted","#6E6E73","#A1A1A6"),("Line","#D2D2D7","#38393F"),("Sage","#E8F1FF","#202A38"),("Sand","#EEF4FF","#242B35")})
+        foreach(var (key,light,dark) in new[]{("Paper","#F5F5F7","#16171A"),("Ink","#1D1D1F","#F5F5F7"),("Surface","#FFFFFF","#222327"),("Inset","#F0F0F2","#191A1E"),("Muted","#6E6E73","#A1A1A6"),("Line","#D2D2D7","#38393F"),("Sage","#F2EAD7","#302B20"),("Sand","#F4EBDD","#27231B")})
             Application.Current.Resources[key]=new SolidColorBrush((Color)ColorConverter.ConvertFromString(Dark?dark:light));
-        Application.Current.Resources[SystemColors.HighlightBrushKey]=new SolidColorBrush((Color)ColorConverter.ConvertFromString(Dark?"#34465F":"#DCEBFF"));
+        Application.Current.Resources["Gold"]=new SolidColorBrush(Color.FromRgb(211,180,107));
+        Application.Current.Resources[SystemColors.HighlightBrushKey]=new SolidColorBrush((Color)ColorConverter.ConvertFromString(Dark?"#554323":"#F2EAD7"));
         Application.Current.Resources[SystemColors.HighlightTextBrushKey]=new SolidColorBrush((Color)ColorConverter.ConvertFromString(Dark?"#F5F5F7":"#1D1D1F"));
         foreach(Window window in Application.Current.Windows)ApplyTitleBar(window);
     }
