@@ -39,3 +39,7 @@
 ## A�ama B � �ekirdek mod�ller
 
 ? Tepsi, Medya, Ara�lar ve yerel arama; sentetik denetimde do�ruland�. G�rseller: erified-final/module-tray.png, module-media.png, module-tools.png.
+
+## Aşama C — üretkenlik modülleri
+
+✅ Notlar, Yapılacaklar ve Zamanlayıcı; gerçek fare/klavye etkileşimi ve izole yerel veriyle doğrulandı. Görseller: erified-final/module-notes-filled.png, module-todo-filled.png, module-timer.png.
