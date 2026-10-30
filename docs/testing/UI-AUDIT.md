@@ -42,7 +42,7 @@ Capture all notch scenes in the same four-cell matrix:
 .build/debug/Nashi --ui-audit build/ui-audit-notch --scenes island.collapsed,island.collapsed-progress,island.expanded.drop,island.expanded.tools,island.expanded.history,island.expanded.widgets --appearance both --language both
 ```
 
-The optional notch matrix now includes the local widgets tab, with selectable 5/15/25/45 minute focus sessions, and produces 24 synthetic captures across light/dark and EN/TR.
+The optional notch matrix now includes the local widgets tab, selectable 5/15/25/45 minute focus sessions, and the Drop Shelf entry point into Nashi's existing Float shelf. It produces 24 synthetic captures across light/dark and EN/TR.
 
 Unknown scenes/options, empty selections, repeated scenes and invalid themes/languages fail. No filter means the complete matrix: **10 scenes × 2 appearances × 2 languages = 40 captures per platform**.
 

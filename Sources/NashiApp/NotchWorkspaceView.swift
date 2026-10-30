@@ -330,6 +330,13 @@ struct NotchWorkspaceView: View {
                 }
                 Spacer()
                 if !state.inputs.isEmpty { Text("\(state.inputs.count) files").font(.system(size:10,weight:.medium,design:.rounded)).foregroundStyle(.white.opacity(0.6)) }
+                if !state.inputs.isEmpty {
+                    Button { state.perform(.float,urls:state.inputs) } label: {
+                        Label(L10n.text("Add to Float"),systemImage:"rectangle.on.rectangle")
+                    }
+                    .buttonStyle(NotchCapsuleButtonStyle())
+                    .accessibilityHint(Text(L10n.text("Keep these files together in a floating shelf")))
+                }
                 Button(action:onChooseFiles) { Label(L10n.text("Choose files"),systemImage:"folder") }
                     .buttonStyle(NotchCapsuleButtonStyle()).accessibilityLabel(Text(L10n.text("Choose files")))
             }
