@@ -1,3 +1,4 @@
+using Nashi.Core;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Automation;
@@ -22,6 +23,7 @@ internal sealed class NashiFilePickerWindow : Window
     private readonly TextBlock locationLabel = new();
     private readonly TextBlock selectionLabel = new();
     private readonly TextBlock statusLabel = new();
+    private readonly HashSet<string>? allowedExtensions;
     private readonly Button backButton;
     private readonly Button forwardButton;
     private readonly Button upButton;
@@ -34,13 +36,17 @@ internal sealed class NashiFilePickerWindow : Window
     internal IReadOnlyList<string> SelectedPaths { get; private set; } = [];
     internal bool UIAuditReady => IsLoaded && allEntries.Count > 0 && fileList.Items.Count > 0;
     internal bool UIAuditHasSyntheticFiles => allEntries.Any(entry => entry.Name == "Example image.png") && allEntries.Any(entry => entry.Name == "Example notes.txt");
+    internal bool UIAuditSingleSelection => fileList.SelectionMode == SelectionMode.Single;
+    internal bool UIAuditHasVisibleFile(string name) => visibleEntries.Any(entry => !entry.IsDirectory && entry.Name == name);
     internal FrameworkElement? UIAuditSurface => Content as FrameworkElement;
 
-    internal NashiFilePickerWindow(Window owner, string? initialDirectory = null)
+    internal NashiFilePickerWindow(Window owner, string? initialDirectory = null, IEnumerable<string>? fileExtensions = null, bool allowMultiple = true, string purpose = "generic")
     {
+        allowedExtensions = fileExtensions?.Select(extension => extension.TrimStart('.')).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var pdfPurpose = purpose == "pdf";
         Owner = owner;
         AutomationProperties.SetAutomationId(this, "NashiFilePickerWindow");
-        Title = L10n.Text("Choose files for Nashi");
+        Title = L10n.Text(pdfPurpose ? "Choose a PDF to edit" : "Choose files for Nashi");
         Width = Math.Min(820, Math.Max(650, SystemParameters.WorkArea.Width - 48));
         Height = Math.Min(610, Math.Max(460, SystemParameters.WorkArea.Height - 72));
         MinWidth = 620;
@@ -83,8 +89,8 @@ internal sealed class NashiFilePickerWindow : Window
         };
         heading.Children.Add(mark);
         var titleStack = new StackPanel { Margin = new Thickness(11, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
-        titleStack.Children.Add(Label("Choose files", 15, FontWeights.SemiBold));
-        titleStack.Children.Add(Label("Select one or more files to add to Nashi.", 10, FontWeights.Normal, muted: true));
+        titleStack.Children.Add(Label(pdfPurpose ? (L10n.Language == "tr" ? "PDF seç" : "Choose a PDF") : "Choose files", 15, FontWeights.SemiBold));
+        titleStack.Children.Add(Label(pdfPurpose ? (L10n.Language == "tr" ? "Yalnızca PDF dosyaları · Bir PDF seç." : "PDF files only · Select one PDF to edit.") : "Select one or more files to add to Nashi.", 10, FontWeights.Normal, muted: true));
         Grid.SetColumn(titleStack, 1);
         heading.Children.Add(titleStack);
         var closeButton = IconButton("×", "Close", () => DialogResult = false);
@@ -187,7 +193,7 @@ internal sealed class NashiFilePickerWindow : Window
         fileList.ItemsSource = visibleEntries;
         AutomationProperties.SetAutomationId(fileList, "NashiFilePickerItems");
         AutomationProperties.SetName(fileList, L10n.Text("Files in this folder"));
-        fileList.SelectionMode = SelectionMode.Extended;
+        fileList.SelectionMode = allowMultiple ? SelectionMode.Extended : SelectionMode.Single;
         fileList.Background = Brushes.Transparent;
         fileList.BorderThickness = new Thickness(0);
         fileList.Foreground = Brushes.White;
@@ -389,7 +395,7 @@ internal sealed class NashiFilePickerWindow : Window
         upButton.IsEnabled = Directory.GetParent(currentPath) is not null;
         statusLabel.Text = L10n.Text("Loading folder…");
         visibleEntries.Clear();
-        fileList.SelectedItems.Clear();
+        fileList.SelectedIndex = -1;
         try
         {
             var result = await Task.Run(() =>
@@ -397,6 +403,7 @@ internal sealed class NashiFilePickerWindow : Window
                 var directories = Directory.EnumerateDirectories(destinationPath)
                     .Select(folder => new Entry(folder, Path.GetFileName(Path.TrimEndingDirectorySeparator(folder)), L10n.Text("Folder"), true));
                 var files = Directory.EnumerateFiles(destinationPath)
+                    .Where(file => allowedExtensions is null || allowedExtensions.Contains(FeatureCatalog.Extension(file)))
                     .Select(file => new FileInfo(file))
                     .Select(file => new Entry(file.FullName, file.Name, FormatSize(file.Length), false));
                 return directories.Concat(files).OrderByDescending(entry => entry.IsDirectory).ThenBy(entry => entry.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
@@ -412,7 +419,9 @@ internal sealed class NashiFilePickerWindow : Window
             allEntries.Clear();
             allEntries.AddRange(result);
             ApplyFilter();
-            statusLabel.Text = CountText(result.Count);
+            statusLabel.Text = result.Count == 0 && allowedExtensions?.Contains("pdf") == true
+                ? (L10n.Language == "tr" ? "Bu klasörde PDF yok. Belgeler veya İndirilenler\u0027i dene." : "No PDFs in this folder. Try Documents or Downloads.")
+                : CountText(result.Count);
         }
         catch (UnauthorizedAccessException)
         {
@@ -452,7 +461,9 @@ internal sealed class NashiFilePickerWindow : Window
         var query = search.Text.Trim();
         visibleEntries.Clear();
         foreach (var item in allEntries.Where(item => string.IsNullOrEmpty(query) || item.Name.Contains(query, StringComparison.CurrentCultureIgnoreCase))) visibleEntries.Add(item);
-        statusLabel.Text = string.IsNullOrEmpty(query) ? CountText(visibleEntries.Count) : string.Format(System.Globalization.CultureInfo.CurrentCulture, L10n.Text("{0} matches"), visibleEntries.Count);
+        statusLabel.Text = visibleEntries.Count == 0 && allowedExtensions?.Contains("pdf") == true
+            ? (L10n.Language == "tr" ? "Bu klasörde PDF yok. Belgeler veya İndirilenler'i dene." : "No PDFs in this folder. Try Documents or Downloads.")
+            : string.IsNullOrEmpty(query) ? CountText(visibleEntries.Count) : string.Format(System.Globalization.CultureInfo.CurrentCulture, L10n.Text("{0} matches"), visibleEntries.Count);
         UpdateSelection();
     }
 
