@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Nashi.Core;
@@ -68,6 +69,20 @@ internal static class ToolButtonsSmokeChecks
                 }
                 DesktopInput.Pump(100);
             }
+
+            foreach(var (key,tab) in new[]{("now","now"),("tray","tray"),("media","media"),("notes","notes"),("todo","todo"),("tools","actions")})
+            {
+                var clicked=window.UIAuditClickDock(key);DesktopInput.Pump(80);
+                Check("dock-button:"+key,clicked&&window.UIAuditIslandTab==tab,$"clicked={clicked}, tab={window.UIAuditIslandTab}");
+            }
+            var searchClicked=window.UIAuditClickDock("search");var searchOpened=searchClicked&&window.UIAuditActionsPopupOpen;
+            Check("dock-button:search",searchOpened,"search did not open the action popover");
+            if(searchOpened)DesktopInput.Key(window,Key.Escape);
+            SettingsWindow? openedSettings=null;var settingsClosed=false;
+            var settingsTimer=new System.Windows.Threading.DispatcherTimer{Interval=TimeSpan.FromMilliseconds(80)};
+            settingsTimer.Tick+=(_,_)=>{openedSettings=Application.Current.Windows.OfType<SettingsWindow>().FirstOrDefault();if(openedSettings is not null){settingsTimer.Stop();openedSettings.DialogResult=false;settingsClosed=true;}};
+            settingsTimer.Start();var settingsClicked=window.UIAuditClickDock("settings");WaitUntil(()=>settingsClosed,TimeSpan.FromSeconds(5));settingsTimer.Stop();
+            Check("dock-button:settings",settingsClicked&&openedSettings is not null,"Settings did not open from the dock");
 
             var mascot=FileGarden.Artwork("NashiMark");
             Check("new-mascot-resource-is-used",mascot.PixelWidth==1254&&mascot.PixelHeight==1254,$"resource dimensions were {mascot.PixelWidth}×{mascot.PixelHeight}");
