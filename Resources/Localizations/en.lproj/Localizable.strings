@@ -72,7 +72,6 @@
 "A PERFECT LANDING SPOT" = "A PERFECT LANDING SPOT";
 "A PHOTO IS UNAVAILABLE. TRY A FRESH PUBLIC POST LINK." = "A PHOTO IS UNAVAILABLE. TRY A FRESH PUBLIC POST LINK.";
 "A PLACE FOR FRESH FILES." = "A PLACE FOR FRESH FILES.";
-"A QUIET 25-MINUTE SESSION" = "A QUIET 25-MINUTE SESSION";
 "A SELECTED ITEM IS MISSING." = "A SELECTED ITEM IS MISSING.";
 "A SPLIT POINT LIES OUTSIDE THE VIDEO." = "A SPLIT POINT LIES OUTSIDE THE VIDEO.";
 "A SUBTITLE CUE ENDS BEFORE IT STARTS." = "A SUBTITLE CUE ENDS BEFORE IT STARTS.";
@@ -99,7 +98,8 @@
 "A perfect landing spot" = "A perfect landing spot";
 "A photo is unavailable. Try a fresh public post link." = "A photo is unavailable. Try a fresh public post link.";
 "A place for fresh files." = "A place for fresh files.";
-"A quiet 25-minute session" = "A quiet 25-minute session";
+"A quiet %@-minute session" = "A quiet %@-minute session";
+"A quiet %lld-minute session" = "A quiet %lld-minute session";
 "A selected item is missing." = "A selected item is missing.";
 "A split point lies outside the video." = "A split point lies outside the video.";
 "A subtitle cue ends before it starts." = "A subtitle cue ends before it starts.";
@@ -1900,6 +1900,8 @@
 "Serif" = "Serif";
 "Session complete" = "Session complete";
 "Set" = "Set";
+"Set focus timer to %@ minutes" = "Set focus timer to %@ minutes";
+"Set focus timer to %lld minutes" = "Set focus timer to %lld minutes";
 "Set up Nashi tools" = "Set up Nashi tools";
 "Set up media tools" = "Set up media tools";
 "Set up media tools for this codec, or use Open to preview in its default app." = "Set up media tools for this codec, or use Open to preview in its default app.";

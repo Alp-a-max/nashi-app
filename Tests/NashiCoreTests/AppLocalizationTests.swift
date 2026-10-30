@@ -118,6 +118,16 @@ final class AppLocalizationTests:XCTestCase {
         XCTAssertFalse(timer.isRunning)
     }
 
+    func testFocusTimerPresetsResetAndClampRestoredProgress() {
+        var timer=NotchFocusTimer(durationSeconds:15*60,remainingSeconds:20*60)
+        XCTAssertEqual(timer.durationSeconds,15*60)
+        XCTAssertEqual(timer.remainingSeconds,15*60)
+        timer.reset(durationSeconds:45*60)
+        XCTAssertEqual(timer.durationSeconds,45*60)
+        XCTAssertEqual(timer.remainingSeconds,45*60)
+        XCTAssertEqual(NotchFocusTimer.presetMinutes,[5,15,25,45])
+    }
+
     func testHoverExpandsAndDelayedCollapseCanRunAfterPointerLeaves() {
         var state=NotchInteractionState()
         state.pointerEntered()
@@ -154,9 +164,11 @@ final class AppLocalizationTests:XCTestCase {
     }
 
     func testNotchWidgetsHaveTurkishCopy() {
-        for source in ["Widgets","Focus timer","Quick note","To-do list","Add a task","Start focus timer","Pause focus timer","Reset focus timer","Notes and tasks stay on this Mac."] {
+        for source in ["Widgets","Focus timer","Quick note","To-do list","Add a task","Start focus timer","Pause focus timer","Reset focus timer","A quiet {0}-minute session","Set focus timer to {0} minutes","Notes and tasks stay on this Mac."] {
             XCTAssertNotEqual(AppLocalization.text(source,language:"tr"),source,source)
         }
+        XCTAssertEqual(AppLocalization.text("A quiet 15-minute session",language:"tr"),"Sakin bir 15 dakikalık oturum")
+        XCTAssertEqual(AppLocalization.text("Set focus timer to 45 minutes",language:"tr"),"Odak sayacını 45 dakikaya ayarla")
     }
 
     func testFormatChipsUseCompatibleTargetsFromExistingCatalog() {

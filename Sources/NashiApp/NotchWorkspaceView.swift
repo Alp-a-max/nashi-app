@@ -18,6 +18,7 @@ import NashiCore
     @Published var tasks:[QuickTask] { didSet { persistTasks() } }
     @Published var taskDraft=""
     @Published private(set) var focusRemainingSeconds:Int
+    @Published private(set) var focusDurationSeconds:Int
     @Published private(set) var focusTimerRunning=false
     private var interaction=NotchInteractionState()
     private var collapseWork: DispatchWorkItem?
@@ -37,9 +38,11 @@ import NashiCore
         quickNote=defaults.string(forKey:"notchQuickNote") ?? ""
         if let data=defaults.data(forKey:"notchQuickTasks"),let saved=try? JSONDecoder().decode([QuickTask].self,from:data) { tasks=saved }
         else { tasks=[] }
-        let remaining=(defaults.object(forKey:"notchFocusRemainingSeconds") as? Int) ?? NotchFocusTimer.defaultDurationSeconds
-        focusTimer=NotchFocusTimer(durationSeconds:remaining)
+        let duration=(defaults.object(forKey:"notchFocusDurationSeconds") as? Int) ?? NotchFocusTimer.defaultDurationSeconds
+        let remaining=(defaults.object(forKey:"notchFocusRemainingSeconds") as? Int) ?? duration
+        focusTimer=NotchFocusTimer(durationSeconds:duration,remainingSeconds:remaining)
         focusRemainingSeconds=focusTimer.remainingSeconds
+        focusDurationSeconds=focusTimer.durationSeconds
     }
 
     func pointerEntered() {
@@ -131,7 +134,13 @@ import NashiCore
 
     func resetFocusTimer() {
         focusTick?.invalidate();focusTick=nil
-        focusTimer.reset();publishFocusTimer()
+        focusTimer.reset(durationSeconds:focusTimer.durationSeconds);publishFocusTimer()
+    }
+
+    func selectFocusDuration(minutes:Int) {
+        guard NotchFocusTimer.presetMinutes.contains(minutes),!focusTimer.isRunning else { return }
+        focusTick?.invalidate();focusTick=nil
+        focusTimer.reset(durationSeconds:minutes*60);publishFocusTimer()
     }
 
     var focusTimeLabel:String {
@@ -150,7 +159,9 @@ import NashiCore
 
     private func publishFocusTimer() {
         focusRemainingSeconds=focusTimer.remainingSeconds
+        focusDurationSeconds=focusTimer.durationSeconds
         focusTimerRunning=focusTimer.isRunning
+        defaults.set(focusDurationSeconds,forKey:"notchFocusDurationSeconds")
         defaults.set(focusRemainingSeconds,forKey:"notchFocusRemainingSeconds")
     }
 
@@ -447,27 +458,47 @@ struct NotchWorkspaceView: View {
     }
 
     private var focusTimerCard: some View {
-        HStack(spacing:11) {
-            ProgressView(value:Double(NotchFocusTimer.defaultDurationSeconds-model.focusRemainingSeconds)/Double(NotchFocusTimer.defaultDurationSeconds))
-                .progressViewStyle(.circular).tint(.white).frame(width:28,height:28)
-                .accessibilityLabel(Text(L10n.text("Focus timer progress")))
-            VStack(alignment:.leading,spacing:3) {
-                Text("Focus timer").font(.system(size:12,weight:.semibold,design:.rounded))
-                Text(model.focusRemainingSeconds==0 ? L10n.text("Session complete"):L10n.text("A quiet 25-minute session"))
-                    .font(.system(size:9)).foregroundStyle(.white.opacity(0.53)).lineLimit(1)
+        VStack(spacing:9) {
+            HStack(spacing:11) {
+                ProgressView(value:Double(model.focusDurationSeconds-model.focusRemainingSeconds)/Double(model.focusDurationSeconds))
+                    .progressViewStyle(.circular).tint(.white).frame(width:28,height:28)
+                    .accessibilityLabel(Text(L10n.text("Focus timer progress")))
+                VStack(alignment:.leading,spacing:3) {
+                    Text("Focus timer").font(.system(size:12,weight:.semibold,design:.rounded))
+                    Text(model.focusRemainingSeconds==0 ? L10n.text("Session complete"):L10n.text("A quiet {0}-minute session").replacingOccurrences(of:"{0}",with:String(model.focusDurationSeconds/60)))
+                        .font(.system(size:9)).foregroundStyle(.white.opacity(0.53)).lineLimit(1)
+                }
+                Spacer(minLength:4)
+                Text(model.focusTimeLabel).font(.system(size:17,weight:.semibold,design:.rounded)).monospacedDigit()
+                Button(action:model.resetFocusTimer) { Image(systemName:"arrow.counterclockwise") }
+                    .buttonStyle(NotchIconButtonStyle()).accessibilityLabel(Text(L10n.text("Reset focus timer")))
+                Button(action:model.toggleFocusTimer) {
+                    Label(L10n.text(model.focusTimerRunning ? "Pause":"Start"),systemImage:model.focusTimerRunning ? "pause.fill":"play.fill")
+                        .font(.system(size:9,weight:.semibold,design:.rounded))
+                        .padding(.horizontal,10).padding(.vertical,8)
+                        .background(Color.white.opacity(0.12),in:Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(L10n.text(model.focusTimerRunning ? "Pause focus timer":"Start focus timer")))
             }
-            Spacer(minLength:4)
-            Text(model.focusTimeLabel).font(.system(size:17,weight:.semibold,design:.rounded)).monospacedDigit()
-            Button(action:model.resetFocusTimer) { Image(systemName:"arrow.counterclockwise") }
-                .buttonStyle(NotchIconButtonStyle()).accessibilityLabel(Text(L10n.text("Reset focus timer")))
-            Button(action:model.toggleFocusTimer) {
-                Label(L10n.text(model.focusTimerRunning ? "Pause":"Start"),systemImage:model.focusTimerRunning ? "pause.fill":"play.fill")
-                    .font(.system(size:9,weight:.semibold,design:.rounded))
-                    .padding(.horizontal,10).padding(.vertical,8)
-                    .background(Color.white.opacity(0.12),in:Capsule())
+            HStack(spacing:5) {
+                ForEach(NotchFocusTimer.presetMinutes,id:\.self) { minutes in
+                    Button {
+                        model.selectFocusDuration(minutes:minutes)
+                    } label: {
+                        Text("\(minutes)m")
+                            .font(.system(size:9,weight:.semibold,design:.rounded).monospacedDigit())
+                            .foregroundStyle(model.focusDurationSeconds==minutes*60 ? Color.black:Color.white.opacity(0.72))
+                            .padding(.horizontal,8).padding(.vertical,5)
+                            .background(model.focusDurationSeconds==minutes*60 ? Color.white:Color.white.opacity(0.08),in:Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(model.focusTimerRunning)
+                    .accessibilityLabel(Text(L10n.text("Set focus timer to {0} minutes").replacingOccurrences(of:"{0}",with:String(minutes))))
+                    .accessibilityAddTraits(model.focusDurationSeconds==minutes*60 ? .isSelected:[])
+                }
+                Spacer(minLength:0)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text(L10n.text(model.focusTimerRunning ? "Pause focus timer":"Start focus timer")))
         }
         .padding(11)
         .background(Color.white.opacity(0.065),in:RoundedRectangle(cornerRadius:15,style:.continuous))
