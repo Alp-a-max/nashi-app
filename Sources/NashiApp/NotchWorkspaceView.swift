@@ -344,10 +344,18 @@ struct NotchWorkspaceView: View {
                 }
                 Spacer(minLength:4)
                 Text(mediaTime(media.playhead)).font(.system(size:9,weight:.medium,design:.rounded)).monospacedDigit().foregroundStyle(.white.opacity(0.75))
+                Button { media.seek(by:-10) } label: { Image(systemName:"gobackward.10") }
+                    .buttonStyle(NotchIconButtonStyle())
+                    .accessibilityIdentifier("NashiPreviewBack10")
+                    .accessibilityLabel(Text(L10n.text("Go back 10 seconds in Nashi preview")))
                 Button { media.togglePlayback() } label: { Image(systemName:media.isPlaying ? "pause.fill":"play.fill") }
                     .buttonStyle(NotchIconButtonStyle())
                     .accessibilityIdentifier("NashiPreviewPlayPause")
                     .accessibilityLabel(Text(L10n.text(media.isPlaying ? "Pause Nashi preview":"Play Nashi preview")))
+                Button { media.seek(by:10) } label: { Image(systemName:"goforward.10") }
+                    .buttonStyle(NotchIconButtonStyle())
+                    .accessibilityIdentifier("NashiPreviewForward10")
+                    .accessibilityLabel(Text(L10n.text("Go forward 10 seconds in Nashi preview")))
             }
             HStack(spacing:8) {
                 Text(mediaTime(media.playhead)).font(.system(size:8,design:.rounded)).monospacedDigit().foregroundStyle(.white.opacity(0.48))

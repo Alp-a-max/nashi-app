@@ -128,6 +128,14 @@ final class AppLocalizationTests:XCTestCase {
         XCTAssertEqual(NotchFocusTimer.presetMinutes,[5,15,25,45])
     }
 
+    func testNotchMediaSeekStaysInsideTheMediaTimeline() {
+        XCTAssertEqual(NotchMediaControl.targetTime(current:3,offset:-10,duration:40)!,0.0)
+        XCTAssertEqual(NotchMediaControl.targetTime(current:35,offset:10,duration:40)!,40.0)
+        XCTAssertEqual(NotchMediaControl.targetTime(current:12,offset:-10,duration:40)!,2.0)
+        XCTAssertNil(NotchMediaControl.targetTime(current:.infinity,offset:10,duration:40))
+        XCTAssertNil(NotchMediaControl.targetTime(current:1,offset:1,duration:.nan))
+    }
+
     func testHoverExpandsAndDelayedCollapseCanRunAfterPointerLeaves() {
         var state=NotchInteractionState()
         state.pointerEntered()
@@ -164,7 +172,7 @@ final class AppLocalizationTests:XCTestCase {
     }
 
     func testNotchWidgetsHaveTurkishCopy() {
-        for source in ["Widgets","Focus timer","Quick note","To-do list","Add a task","Start focus timer","Pause focus timer","Reset focus timer","A quiet {0}-minute session","Set focus timer to {0} minutes","Add to Float","Keep these files together in a floating shelf","Paste files, text, an image, or a link from the clipboard","Pause Nashi preview","Play Nashi preview","Nashi media preview","Seek Nashi media preview","Notes and tasks stay on this Mac."] {
+        for source in ["Widgets","Focus timer","Quick note","To-do list","Add a task","Start focus timer","Pause focus timer","Reset focus timer","A quiet {0}-minute session","Set focus timer to {0} minutes","Add to Float","Keep these files together in a floating shelf","Paste files, text, an image, or a link from the clipboard","Pause Nashi preview","Play Nashi preview","Nashi media preview","Seek Nashi media preview","Go back 10 seconds in Nashi preview","Go forward 10 seconds in Nashi preview","Notes and tasks stay on this Mac."] {
             XCTAssertNotEqual(AppLocalization.text(source,language:"tr"),source,source)
         }
         XCTAssertEqual(AppLocalization.text("A quiet 15-minute session",language:"tr"),"Sakin bir 15 dakikalık oturum")

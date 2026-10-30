@@ -1000,6 +1000,8 @@
 "GITHUB REPOSITORY" = "GITHUB DEPOSU";
 "GIVE IT A LITTLE BREATHING ROOM." = "BİRAZ NEFES ALACAK ALAN AÇ.";
 "GLASS" = "CAM";
+"GO BACK 10 SECONDS IN NASHI PREVIEW" = "NASHI ÖNİZLEMESİNDE 10 SANİYE GERİ GİT";
+"GO FORWARD 10 SECONDS IN NASHI PREVIEW" = "NASHI ÖNİZLEMESİNDE 10 SANİYE İLERİ GİT";
 "GRADIENT" = "GEÇİŞ";
 "GRADIENT END" = "GEÇİŞİN BİTİŞ RENGİ";
 "GRAIN" = "GREN";
@@ -1013,6 +1015,8 @@
 "GitHub repository" = "GitHub deposu";
 "Give it a little breathing room." = "Biraz nefes alacak alan aç.";
 "Glass" = "Cam";
+"Go back 10 seconds in Nashi preview" = "Nashi önizlemesinde 10 saniye geri git";
+"Go forward 10 seconds in Nashi preview" = "Nashi önizlemesinde 10 saniye ileri git";
 "Gradient" = "Geçiş";
 "Gradient end" = "Geçişin bitiş rengi";
 "Grain" = "Gren";

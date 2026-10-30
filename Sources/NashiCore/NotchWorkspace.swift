@@ -93,6 +93,14 @@ public struct NotchFocusTimer: Equatable {
     }
 }
 
+/// Bounds a notch preview seek request to a finite media timeline.
+public enum NotchMediaControl {
+    public static func targetTime(current:Double,offset:Double,duration:Double)->Double? {
+        guard current.isFinite,offset.isFinite,duration.isFinite,duration>=0 else { return nil }
+        return min(duration,max(0,current+offset))
+    }
+}
+
 public struct NotchInteractionState: Equatable {
     public private(set) var isExpanded=false
     public private(set) var pointerInside=false

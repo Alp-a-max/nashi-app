@@ -195,7 +195,7 @@ struct UIAuditError:LocalizedError { let message:String;init(_ message:String){s
         if scene.hasSuffix("media") {
             let identifiers=Set(ownAccessibilityElements(content).compactMap{$0.accessibilityIdentifier()})
             guard identifiers.contains("NashiPreviewPlayPause") else { throw UIAuditError("The Nashi media playback control is missing from the notch scene.") }
-            if scene=="island.expanded.media",!identifiers.contains("NashiPreviewSeek") { throw UIAuditError("The expanded Nashi media controls do not expose seeking.") }
+            if scene=="island.expanded.media",!identifiers.isSuperset(of:["NashiPreviewSeek","NashiPreviewBack10","NashiPreviewForward10"]) { throw UIAuditError("The expanded Nashi media controls do not expose seeking and skip actions.") }
         }
         let issues=recorder.issues(in:content.bounds,editor:isEditor)
         try save(scene:scene,appearance:appearance,language:language,view:content,recorder:recorder,issues:issues)

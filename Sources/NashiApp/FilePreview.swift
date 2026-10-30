@@ -41,8 +41,10 @@ import NashiCore
     func togglePlayback(){guard let player else{return};if player.rate==0 {player.play()}else{player.pause()};updatePlaybackState(player)}
     func seek(to seconds:Double){
         guard let player,seconds.isFinite,duration.isFinite,duration>0 else{return}
-        let target=min(duration,max(0,seconds));player.seek(to:CMTime(seconds:target,preferredTimescale:600));playhead=target
+        guard let target=NotchMediaControl.targetTime(current:0,offset:seconds,duration:duration) else{return}
+        player.seek(to:CMTime(seconds:target,preferredTimescale:600));playhead=target
     }
+    func seek(by seconds:Double){guard let target=NotchMediaControl.targetTime(current:playhead,offset:seconds,duration:duration) else{return};seek(to:target)}
     private func updatePlaybackState(_ player:AVPlayer){
         guard self.player === player else{return}
         let time=player.currentTime().seconds,total=player.currentItem?.duration.seconds ?? 0
@@ -59,7 +61,9 @@ import NashiCore
         let content:NSView
         if [.audio,.video].contains(FileCategory.detect(url)) {
             let view=AVPlayerView();let p=AVPlayer(url:url);view.player=p;view.controlsStyle = .floating;player=p;mediaURL=url
-            playbackTimer=Timer.scheduledTimer(withTimeInterval:0.25,repeats:true){[weak self,weak p] _ in guard let self,let p else{return};self.updatePlaybackState(p)}
+            playbackTimer=Timer.scheduledTimer(withTimeInterval:0.25,repeats:true){[weak self,weak p] _ in
+                DispatchQueue.main.async { guard let self,let p else{return};self.updatePlaybackState(p) }
+            }
             content=view
         } else {let view=QLPreviewView(frame:.zero,style:.normal)!;view.autostarts=false;view.previewItem=url as NSURL;preview=view;content=view}
         for view in [header,content,hint] {view.translatesAutoresizingMaskIntoConstraints=false;root.addSubview(view)}
