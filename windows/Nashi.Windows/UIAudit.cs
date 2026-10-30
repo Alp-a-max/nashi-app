@@ -19,7 +19,7 @@ internal static class UIAudit
 {
     internal static readonly string[] SceneIds =
     [
-        "home.empty", "home.selected", "library", "settings.general", "settings.formats",
+        "home.empty", "home.selected", "library", "settings.general", "settings.appearance", "settings.shortcuts", "settings.files", "settings.behavior", "settings.formats",
         "settings.updates", "wheel.pdf-multiple", "editor.crop-image", "editor.annotate-image", "editor.frame-image",
         "island.collapsed", "island.expanded.actions", "island.expanded.notes", "island.actions-popup", "island.file-picker"
     ];
@@ -164,6 +164,7 @@ internal static class UIAudit
         {
             Language = capture.Language, Enabled = false, AutomaticUpdateChecks = false,
             KeepInTray = false, RevealFinished = false, Feedback = false, Animations = false,
+            PillModeEnabled = capture.Scene.StartsWith("island.", StringComparison.Ordinal), PillOnboardingCompleted = true,
             WheelFinish = "solid", OutputMode = "folder", OutputFolder = fixtures.Outputs, DownloadFolder = fixtures.Outputs
         });
         var library = new LibraryStore(directory);
@@ -192,7 +193,7 @@ internal static class UIAudit
                 "home.empty" or "home.selected" or "library" or "island.collapsed" or
                     "island.expanded.actions" or "island.expanded.notes" or "island.actions-popup" => owner,
                 "island.file-picker" => owner.UIAuditCreateFilePicker(fixtures.PickerFolder),
-                "settings.general" or "settings.formats" or "settings.updates" => Settings(owner, preferences, library, capture.Scene),
+                "settings.general" or "settings.appearance" or "settings.shortcuts" or "settings.files" or "settings.behavior" or "settings.formats" or "settings.updates" => Settings(owner, preferences, library, capture.Scene),
                 "wheel.pdf-multiple" => new WheelWindow(owner, owner.UIAuditToolChoices, _ => { }),
                 "editor.crop-image" => new ToolEditor(owner, "crop", "Crop Image", fixtures.Image, preview: fixtures.Bitmap),
                 "editor.annotate-image" => new ToolEditor(owner, "annotate", "Annotate", fixtures.Image, preview: fixtures.Bitmap),
@@ -218,6 +219,8 @@ internal static class UIAudit
             capture.MinimumHeight = subject.MinHeight;
             capture.Checks["minimumSize"] = capture.Scene == "island.actions-popup"
                 ? owner.UIAuditActionsPopupSurface is { ActualWidth: > 100, ActualHeight: > 40 }
+                : subject is MainWindow && capture.Scene == "island.collapsed"
+                    ? subject.ActualWidth >= 160 && subject.ActualHeight >= 26
                 : subject is MainWindow
                     ? subject.ActualWidth >= 390 && subject.ActualHeight >= 60
                     : subject is WheelWindow ||
@@ -256,7 +259,7 @@ internal static class UIAudit
         // The visual tree is not yet materialized, so fall back to the logical tree for the page selector.
         list ??= LogicalDescendants<ListBox>(settings).FirstOrDefault();
         if (list is null) throw new InvalidOperationException("Settings navigation is missing.");
-        list.SelectedItem = scene switch { "settings.formats" => "Formats", "settings.updates" => "Updates", _ => "General" };
+        list.SelectedItem = scene switch { "settings.shortcuts" => "Shortcuts", "settings.files" => "Files", "settings.behavior" => "Behavior", "settings.formats" => "Formats", "settings.updates" => "Updates", _ => "Appearance" };
         return settings;
     }
 
@@ -320,8 +323,8 @@ internal static class UIAudit
             "island.expanded.notes" => subject == owner && owner.UIAuditIslandExpanded && owner.UIAuditIslandTab == "notes",
             "island.actions-popup" => subject == owner && owner.UIAuditActionsPopupOpen && IsOpaqueBlack(owner.UIAuditActionsPopupSurface),
             "island.file-picker" => subject is NashiFilePickerWindow picker && picker.UIAuditReady && picker.UIAuditHasSyntheticFiles && IsOpaqueBlack(picker.UIAuditSurface),
-            "settings.general" or "settings.formats" or "settings.updates" => subject is SettingsWindow &&
-                Descendants<ListBox>(subject).Any(list => Equals(list.SelectedItem, capture.Scene.Split('.')[1] switch { "formats" => "Formats", "updates" => "Updates", _ => "General" })),
+            "settings.general" or "settings.appearance" or "settings.shortcuts" or "settings.files" or "settings.behavior" or "settings.formats" or "settings.updates" => subject is SettingsWindow &&
+                Descendants<ListBox>(subject).Any(list => Equals(list.SelectedItem, capture.Scene.Split('.')[1] switch { "shortcuts" => "Shortcuts", "files" => "Files", "behavior" => "Behavior", "formats" => "Formats", "updates" => "Updates", _ => "Appearance" })),
             "wheel.pdf-multiple" => subject is WheelWindow && owner.SelectedFiles.SequenceEqual(fixtures.Pdfs) &&
                 Descendants<System.Windows.Shapes.Path>(subject).Count(path => path.Data is StreamGeometry) == FeatureCatalog.Tools(fixtures.Pdfs).Length,
             "editor.crop-image" => subject is ToolEditor crop && crop.FieldForTest("Width").Text == fixtures.Bitmap.PixelWidth.ToString(CultureInfo.CurrentCulture),

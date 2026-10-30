@@ -47,7 +47,7 @@ internal sealed class NashiFilePickerWindow : Window
         var pdfPurpose = purpose == "pdf";
         Owner = owner;
         AutomationProperties.SetAutomationId(this, "NashiFilePickerWindow");
-        Title = L10n.Text(pdfPurpose ? "Choose a PDF to edit" : "Choose files for Nashi");
+        Title = L10n.Text(pdfPurpose ? (allowMultiple ? "Choose PDF files to edit" : "Choose a PDF to edit") : "Choose files for Nashi");
         Width = Math.Min(820, Math.Max(650, SystemParameters.WorkArea.Width - 48));
         Height = Math.Min(610, Math.Max(460, SystemParameters.WorkArea.Height - 72));
         MinWidth = 620;
@@ -471,8 +471,11 @@ internal sealed class NashiFilePickerWindow : Window
     private void UpdateSelection()
     {
         var selected = fileList.SelectedItems.Cast<Entry>().Where(entry => !entry.IsDirectory).ToArray();
-        selectionLabel.Text = selected.Length == 0 ? L10n.Text("No files selected") : string.Format(System.Globalization.CultureInfo.CurrentCulture, L10n.Text("{0} selected"), selected.Length);
+        var type=allowedExtensions?.Count==1?allowedExtensions.Single().ToUpperInvariant():"file";
+        selectionLabel.Text = selected.Length == 0 ? L10n.Text("No files selected") : pdfPurposeLabel(selected.Length,type);
         addButton.IsEnabled = selected.Length > 0;
+
+        static string pdfPurposeLabel(int count,string type)=>type=="PDF"?L10n.Language=="tr"?$"{count} PDF seçildi":$"{count} PDF selected":string.Format(System.Globalization.CultureInfo.CurrentCulture,L10n.Text("{0} selected"),count);
     }
 
     private async void GoBack()
