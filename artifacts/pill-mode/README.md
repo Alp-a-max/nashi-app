@@ -28,9 +28,9 @@
 - `dotnet build windows/Nashi.Windows/Nashi.Windows.csproj -c Release` — geçti, 0 uyarı / 0 hata.
 - `dotnet run --project windows/Nashi.Verify/Nashi.Verify.csproj -c Release` — 1.492 kontrol geçti.
 - `dotnet run --project windows/Nashi.Windows/Nashi.Windows.csproj -c Debug --no-build -- --island-interaction-smoke` — 11 kontrol geçti.
-- `--pill-mode-smoke` — 26/26 kontrol; gerçek fare hareketi/tıklaması, kısayol, gizlenme, yerel yazma, arama ve zamanlayıcı akışı.
+- `--pill-mode-smoke` — 27/27 kontrol; gerçek fare hareketi/tıklaması, kısayol, gizlenme, yerel yazma, arama ve zamanlayıcı akışı.
 - Stil Galerisi ve modül görüntüleri yalnızca sentetik veri kullanır.
-- PDF edit now filters to PDF files only and opens the selected PDF in the page organizer.
+- PDF edit shows only PDFs, preserves the requested action, and renders page content in the organizer thumbnail.
 
 ## Görüntüler
 
