@@ -35,15 +35,16 @@
 
 - Stil Galerisi: `verified-gallery/style-gallery.png`
 - Hap ve modül akışları: `verified-final/*.png`
-- Son görsel gözden geçirmede not alanı odağı altın renge, Ayna önizlemesi 260 px panel yüksekliğine sığacak ölçüye getirildi.
-## A�ama B � �ekirdek mod�ller
+- Not alanı odağı altın renge, Ayna önizlemesi 260 px panel yüksekliğine sığacak ölçüye getirildi.
 
-? Tepsi, Medya, Ara�lar ve yerel arama; sentetik denetimde do�ruland�. G�rseller: erified-final/module-tray.png, module-media.png, module-tools.png.
+### Aşama B — çekirdek modüller
 
-## Aşama C — üretkenlik modülleri
+✅ Tepsi, Medya, Araçlar ve yerel arama; sentetik denetimde doğrulandı. Görseller: `verified-final/module-tray.png`, `module-media.png`, `module-tools.png`.
 
-✅ Notlar, Yapılacaklar ve Zamanlayıcı; gerçek fare/klavye etkileşimi ve izole yerel veriyle doğrulandı. Görseller: erified-final/module-notes-filled.png, module-todo-filled.png, module-timer.png.
+### Aşama C — üretkenlik modülleri
 
-## Aşama D — ileri modüller
+✅ Notlar, Yapılacaklar ve Zamanlayıcı; gerçek fare/klavye etkileşimi ve izole yerel veriyle doğrulandı. Görseller: `verified-final/module-notes-filled.png`, `module-todo-filled.png`, `module-timer.png`.
 
-✅ Takvim, Cep, Teleprompter ve kamera kapalı başlangıçlı Ayna; kamera açılmadan sentetik denetimde görüntülendi. Gerçek cihaz izni/oturumu test edilmedi. Görseller: erified-final/module-calendar.png, module-pocket.png, module-prompter.png, module-mirror.png.
+### Aşama D — ileri modüller
+
+✅ Takvim, Cep, Teleprompter ve kamera kapalı başlangıçlı Ayna; kamera açılmadan sentetik denetimde görüntülendi. Gerçek cihaz izni/oturumu test edilmedi. Görseller: `verified-final/module-calendar.png`, `module-pocket.png`, `module-prompter.png`, `module-mirror.png`.
