@@ -43,3 +43,7 @@
 ## Aşama C — üretkenlik modülleri
 
 ✅ Notlar, Yapılacaklar ve Zamanlayıcı; gerçek fare/klavye etkileşimi ve izole yerel veriyle doğrulandı. Görseller: erified-final/module-notes-filled.png, module-todo-filled.png, module-timer.png.
+
+## Aşama D — ileri modüller
+
+✅ Takvim, Cep, Teleprompter ve kamera kapalı başlangıçlı Ayna; kamera açılmadan sentetik denetimde görüntülendi. Gerçek cihaz izni/oturumu test edilmedi. Görseller: erified-final/module-calendar.png, module-pocket.png, module-prompter.png, module-mirror.png.
