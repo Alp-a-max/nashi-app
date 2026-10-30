@@ -41,6 +41,18 @@ public partial class App:Application
             catch(Exception error){failures.Add(error.ToString());}
             if(Interlocked.CompareExchange(ref finished,1,0)==0){Report(failures);Shutdown(failures.Count==0?0:1);}return;
         }
+        if(e.Args.Contains("--island-interaction-smoke"))
+        {
+            IsSmokeTest=true;ShutdownMode=ShutdownMode.OnExplicitShutdown;
+            try
+            {
+                var checks=0;
+                IslandInteractionChecks.Run((passed,message)=>{if(!passed)throw new InvalidOperationException(message);checks++;});
+                Console.WriteLine($"Island interaction checks: {checks} passed.");Shutdown(0);
+            }
+            catch(Exception error){Console.Error.WriteLine(error);Shutdown(1);}
+            return;
+        }
         if(e.Args.Contains("--ui-audit"))
         {
             IsSmokeTest=true;ShutdownMode=ShutdownMode.OnExplicitShutdown;

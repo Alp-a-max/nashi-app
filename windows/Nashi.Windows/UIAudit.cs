@@ -20,7 +20,8 @@ internal static class UIAudit
     internal static readonly string[] SceneIds =
     [
         "home.empty", "home.selected", "library", "settings.general", "settings.formats",
-        "settings.updates", "wheel.pdf-multiple", "editor.crop-image", "editor.annotate-image", "editor.frame-image"
+        "settings.updates", "wheel.pdf-multiple", "editor.crop-image", "editor.annotate-image", "editor.frame-image",
+        "island.collapsed", "island.expanded.actions", "island.expanded.notes", "island.actions-popup"
     ];
     private static readonly string[] Appearances = ["light", "dark"];
     private static readonly string[] Languages = ["en", "tr"];
@@ -177,11 +178,19 @@ internal static class UIAudit
         Window? subject = null;
         try
         {
-            if (capture.Scene == "library") owner.ShowLibrary(true);
+            if (capture.Scene == "library") owner.UIAuditShowWorkspace(true);
             ShowAtMinimum(owner);
+            if (capture.Scene.StartsWith("island.", StringComparison.Ordinal))
+            {
+                var expanded = capture.Scene != "island.collapsed" && capture.Scene != "island.actions-popup";
+                var tab = capture.Scene == "island.expanded.notes" ? "notes" : "actions";
+                owner.UIAuditPresentIsland(expanded, tab);
+                if (capture.Scene == "island.actions-popup") owner.UIAuditShowActionsPopup();
+            }
             subject = capture.Scene switch
             {
-                "home.empty" or "home.selected" or "library" => owner,
+                "home.empty" or "home.selected" or "library" or "island.collapsed" or
+                    "island.expanded.actions" or "island.expanded.notes" or "island.actions-popup" => owner,
                 "settings.general" or "settings.formats" or "settings.updates" => Settings(owner, preferences, library, capture.Scene),
                 "wheel.pdf-multiple" => new WheelWindow(owner, owner.UIAuditToolChoices, _ => { }),
                 "editor.crop-image" => new ToolEditor(owner, "crop", "Crop Image", fixtures.Image, preview: fixtures.Bitmap),
@@ -190,7 +199,8 @@ internal static class UIAudit
                 _ => throw new ArgumentException("Unknown scene: " + capture.Scene)
             };
             if (!ReferenceEquals(subject, owner)) ShowAtMinimum(subject);
-            var ready = WaitUntil(() => Ready(subject), TimeSpan.FromSeconds(8));
+            var ready = WaitUntil(() => Ready(subject) && (capture.Scene != "island.actions-popup" ||
+                owner.UIAuditActionsPopupOpen && owner.UIAuditActionsPopupSurface is { ActualWidth: > 0, ActualHeight: > 0 }), TimeSpan.FromSeconds(8));
             capture.Checks["loadedAndArranged"] = ready;
             capture.Checks["privateLibrary"] = Path.GetFullPath(library.DirectoryPath).StartsWith(Path.GetFullPath(stateRoot) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
             capture.Checks["language"] = L10n.Language == capture.Language;
@@ -198,19 +208,27 @@ internal static class UIAudit
             AssertActualScene(subject, owner, fixtures, capture);
             if (!ready) capture.Issues.Add("Scene did not reach loaded, arranged and artwork-ready state within 8 seconds.");
             subject.UpdateLayout();
-            capture.Width = subject.ActualWidth;
-            capture.Height = subject.ActualHeight;
+            capture.Width = capture.Scene == "island.actions-popup" && owner.UIAuditActionsPopupSurface is { } measuredPopup
+                ? measuredPopup.ActualWidth : subject.ActualWidth;
+            capture.Height = capture.Scene == "island.actions-popup" && owner.UIAuditActionsPopupSurface is { } measuredPopupHeight
+                ? measuredPopupHeight.ActualHeight : subject.ActualHeight;
             capture.MinimumWidth = subject.MinWidth;
             capture.MinimumHeight = subject.MinHeight;
-            capture.Checks["minimumSize"] = subject is WheelWindow ||
+            capture.Checks["minimumSize"] = capture.Scene == "island.actions-popup"
+                ? owner.UIAuditActionsPopupSurface is { ActualWidth: > 100, ActualHeight: > 40 }
+                : subject is MainWindow
+                    ? subject.ActualWidth >= 390 && subject.ActualHeight >= 60
+                    : subject is WheelWindow ||
                 (Math.Abs(subject.ActualWidth - subject.MinWidth) <= 2 && Math.Abs(subject.ActualHeight - subject.MinHeight) <= 2);
             if (!capture.Checks["minimumSize"]) capture.Issues.Add("Window did not retain its supported minimum audit size.");
-            ValidateLayout(subject, capture);
+            if (capture.Scene != "island.actions-popup") ValidateLayout(subject, capture);
             if (subject is WheelWindow wheel) ValidateWheel(wheel, capture);
             if (subject is ToolEditor editor) ValidateFooter(editor, capture);
             var image = Path.Combine(output, "captures", capture.Appearance, capture.Language, capture.Scene + ".png");
             Directory.CreateDirectory(Path.GetDirectoryName(image)!);
-            var rendered = Render(subject, image);
+            var rendered = capture.Scene == "island.actions-popup" && owner.UIAuditActionsPopupSurface is { } popupSurface
+                ? Render(popupSurface, image)
+                : Render(subject, image);
             capture.RenderedPixels = rendered.VisiblePixels;
             capture.RenderedColors = rendered.Colors;
             capture.Checks["nonBlankOwnWindowRender"] = rendered.VisiblePixels > 100 && rendered.Colors >= 3;
@@ -242,7 +260,7 @@ internal static class UIAudit
 
     private static void ShowAtMinimum(Window window)
     {
-        if (window is not WheelWindow)
+        if (window is not WheelWindow and not MainWindow)
         {
             window.Width = window.MinWidth;
             window.Height = window.MinHeight;
@@ -295,6 +313,10 @@ internal static class UIAudit
             "home.empty" => subject == owner && !owner.LibraryVisible && owner.SelectedFiles.Count == 0,
             "home.selected" => subject == owner && !owner.LibraryVisible && owner.SelectedFiles.SequenceEqual(new[] { fixtures.Image }),
             "library" => subject == owner && owner.LibraryVisible && Descendants<ListBox>(owner).Any() && owner.SearchField.IsVisible,
+            "island.collapsed" => subject == owner && !owner.UIAuditIslandExpanded,
+            "island.expanded.actions" => subject == owner && owner.UIAuditIslandExpanded && owner.UIAuditIslandTab == "actions",
+            "island.expanded.notes" => subject == owner && owner.UIAuditIslandExpanded && owner.UIAuditIslandTab == "notes",
+            "island.actions-popup" => subject == owner && owner.UIAuditActionsPopupOpen && IsOpaqueBlack(owner.UIAuditActionsPopupSurface),
             "settings.general" or "settings.formats" or "settings.updates" => subject is SettingsWindow &&
                 Descendants<ListBox>(subject).Any(list => Equals(list.SelectedItem, capture.Scene.Split('.')[1] switch { "formats" => "Formats", "updates" => "Updates", _ => "General" })),
             "wheel.pdf-multiple" => subject is WheelWindow && owner.SelectedFiles.SequenceEqual(fixtures.Pdfs) &&
@@ -337,6 +359,10 @@ internal static class UIAudit
         capture.InteractiveControlsChecked = checkedCount;
         capture.Checks["interactiveControlsContained"] = !capture.Issues.Any(issue => issue.StartsWith("Interactive control exceeds", StringComparison.Ordinal));
     }
+
+    private static bool IsOpaqueBlack(FrameworkElement? surface) =>
+        surface is Border { Background: SolidColorBrush brush } && brush.Opacity >= 0.99 &&
+        brush.Color.R <= 8 && brush.Color.G <= 8 && brush.Color.B <= 8;
 
     private static void ValidateFooter(ToolEditor editor, Capture capture)
     {
@@ -405,7 +431,7 @@ internal static class UIAudit
         }
     }
 
-    private static (int VisiblePixels, int Colors) Render(Window window, string destination)
+    private static (int VisiblePixels, int Colors) Render(FrameworkElement window, string destination)
     {
         var width = Math.Max(1, (int)Math.Ceiling(window.ActualWidth));
         var height = Math.Max(1, (int)Math.Ceiling(window.ActualHeight));
