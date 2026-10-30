@@ -6,6 +6,8 @@ import NashiUpdates
 
 struct UIAuditOptions {
     static let scenes=["home.empty","home.selected","library","settings.general","settings.formats","settings.updates","wheel.pdf-multiple","editor.crop-image","editor.annotate-image","editor.frame-image"]
+    static let notchScenes=["island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.tools","island.expanded.history"]
+    static let supportedScenes=scenes+notchScenes
     var output:URL
     var scenes=Self.scenes
     var appearances=["light","dark"]
@@ -21,7 +23,7 @@ struct UIAuditOptions {
             guard index<arguments.count else{throw UIAuditError("Missing value for "+key)}
             let value=arguments[index];index+=1
             switch key {
-            case "--scenes":scenes=value.split(separator:",").map(String.init);guard !scenes.isEmpty,Set(scenes).count==scenes.count,scenes.allSatisfy(Self.scenes.contains) else{throw UIAuditError("Unknown or repeated audit scene. Supported: "+Self.scenes.joined(separator:","))}
+            case "--scenes":scenes=value.split(separator:",").map(String.init);guard !scenes.isEmpty,Set(scenes).count==scenes.count,scenes.allSatisfy(Self.supportedScenes.contains) else{throw UIAuditError("Unknown or repeated audit scene. Supported: "+Self.supportedScenes.joined(separator:","))}
             case "--appearance":guard ["light","dark","both"].contains(value) else{throw UIAuditError("Appearance must be light, dark or both")};appearances=value=="both" ? ["light","dark"]:[value]
             case "--language":guard AppLocalization.supportedLanguages.contains(value) || value=="both" else{throw UIAuditError("Language must be en, tr, fr or both")};languages=value=="both" ? ["en","tr"]:[value]
             default:throw UIAuditError("Unknown audit argument: "+key)
@@ -113,7 +115,7 @@ struct UIAuditError:LocalizedError { let message:String;init(_ message:String){s
             // Each UserDefaults instance caches its own volatile search domains.
             // Set both stores so NSArgumentDomain cannot mask this cell's suite.
             defaults.setVolatileDomain(arguments,forName:UserDefaults.argumentDomain)
-            defaults.set(language,forKey:"appLanguage");defaults.set(appearance,forKey:"appAppearance");defaults.set(true,forKey:"reduceAnimations")
+            defaults.set(language,forKey:"appLanguage");defaults.set(appearance,forKey:"appAppearance");defaults.set(true,forKey:"reduceAnimations");defaults.set(false,forKey:"notchModeEnabled")
             NSApp.appearance=NSAppearance(named:appearance=="dark" ? .darkAqua:.aqua)
             observedPreferences=[:]
             do {try await capture(scene:scene,appearance:appearance,language:language,defaults:defaults)}
@@ -124,7 +126,12 @@ struct UIAuditError:LocalizedError { let message:String;init(_ message:String){s
         window?.close();window=nil
         let state=AppState(defaults:defaults),recorder=UIAuditLayout(),updater=AppUpdater()
         let image=fixtures["image"]!,text=fixtures["text"]!,pdf=fixtures["pdf1"]!
-        if scene=="home.selected" || scene.hasPrefix("editor."){state.inputs=[image]}
+        if scene=="home.selected" || scene.hasPrefix("editor.") || scene=="island.expanded.drop" || scene=="island.expanded.tools" {state.inputs=[image]}
+        if scene=="island.collapsed-progress" {state.inputs=[image];state.working=true;state.progress=0.42;state.progressIsDeterminate=true;state.progressLabel="Convert to PNG";state.activeInputs=[image]}
+        if scene=="island.expanded.history" {
+            state.history=[JobRecord(id:UUID(uuidString:"00000000-0000-0000-0000-000000000011")!,title:"Convert to PNG",inputs:[image.path],outputs:[image.path],date:Date(timeIntervalSince1970:1_767_225_600))]
+            state.working=true;state.progress=0.62;state.progressIsDeterminate=true;state.progressLabel="Compress";state.activeInputs=[image]
+        }
         if scene=="library" {
             state.history=[(image,"Convert to PNG"),(text,"Pasted text"),(pdf,"Merge PDFs"),(fixtures["missing"]!,"Missing original")].enumerated().map { index,item in JobRecord(id:UUID(uuidString:String(format:"00000000-0000-0000-0000-%012d",index+1))!,title:item.1,inputs:[],outputs:[item.0.path],date:Date(timeIntervalSince1970:1_767_225_600)) }
             state.libraryVisible=true
@@ -133,6 +140,13 @@ struct UIAuditError:LocalizedError { let message:String;init(_ message:String){s
         let view:AnyView,size:NSSize
         switch scene {
         case "home.empty","home.selected","library":view=AnyView(HomeView(state:state,updater:updater));size=NSSize(width:700,height:580)
+        case "island.collapsed","island.collapsed-progress","island.expanded.drop","island.expanded.tools","island.expanded.history":
+            let model=NotchPanelModel()
+            if scene=="island.expanded.tools" {model.select(.tools)}
+            if scene=="island.expanded.history" {model.select(.history)}
+            if scene=="island.expanded.drop" {model.select(.drop)}
+            view=AnyView(NotchWorkspaceView(state:state,model:model,onChooseFiles:{},onChooseTool:{_ in}))
+            size=scene=="island.collapsed" ? NSSize(width:164,height:44):scene=="island.collapsed-progress" ? NSSize(width:266,height:44):NSSize(width:540,height:470)
         case "settings.general","settings.formats","settings.updates":
             let section:SettingsSection=scene=="settings.formats" ? .formats:scene=="settings.updates" ? .updates:.general
             view=AnyView(SettingsView(updater:updater,initialSection:section));size=NSSize(width:790,height:590)
