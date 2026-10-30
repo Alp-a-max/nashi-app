@@ -191,11 +191,14 @@ import NashiCore
 struct NotchWorkspaceView: View {
     @ObservedObject var state:AppState
     @ObservedObject var model:NotchPanelModel
+    @ObservedObject var media:FilePreview
     let onChooseFiles:()->Void
     let onChooseTool:(ToolKind)->Void
+    @State private var isSeekingMedia=false
+    @State private var mediaSeekPosition=0.0
 
     private var compactWidth:CGFloat {
-        if state.working { return 266 }
+        if state.working || media.mediaURL != nil { return 266 }
         if state.inputs.count==1 && !NotchDropShelfTargets.formats(for:state.inputs[0]).isEmpty { return 256 }
         return model.pointerInside ? 190:164
     }
@@ -239,6 +242,16 @@ struct NotchWorkspaceView: View {
                 Spacer(minLength:0)
                 Button { state.token.cancel() } label: { Image(systemName:"xmark.circle.fill") }
                     .buttonStyle(NotchIconButtonStyle()).accessibilityLabel(Text(L10n.text("Cancel")))
+            } else if let mediaURL=media.mediaURL {
+                Image(systemName:"waveform").font(.system(size:13,weight:.medium)).foregroundStyle(.white.opacity(0.68))
+                Text(mediaURL.lastPathComponent).font(.system(size:10,weight:.medium,design:.rounded)).lineLimit(1).truncationMode(.middle)
+                Spacer(minLength:2)
+                Button { media.togglePlayback() } label: { Image(systemName:media.isPlaying ? "pause.fill":"play.fill") }
+                    .buttonStyle(NotchIconButtonStyle())
+                    .accessibilityIdentifier("NashiPreviewPlayPause")
+                    .accessibilityLabel(Text(L10n.text(media.isPlaying ? "Pause Nashi preview":"Play Nashi preview")))
+                Button(action:model.toggleExpanded) { Image(systemName:"chevron.down") }
+                    .buttonStyle(NotchIconButtonStyle()).accessibilityLabel(Text(L10n.text("Expand Nashi")))
             } else if state.inputs.count==1,let format=NotchDropShelfTargets.formats(for:state.inputs[0]).first {
                 Text(state.inputs[0].lastPathComponent).font(.system(size:10,weight:.medium,design:.rounded)).lineLimit(1).truncationMode(.middle)
                 Spacer(minLength:2)
@@ -280,6 +293,8 @@ struct NotchWorkspaceView: View {
                     .buttonStyle(NotchIconButtonStyle()).accessibilityLabel(Text(L10n.text("Collapse Nashi")))
             }
 
+            if media.mediaURL != nil { mediaControlCard }
+
             HStack(spacing:5) {
                 ForEach(NotchPanelModel.Tab.allCases) { tab in
                     Button { model.select(tab) } label: {
@@ -317,6 +332,45 @@ struct NotchWorkspaceView: View {
             if state.progressIsDeterminate { Text("\(Int(state.progress*100))%").font(.system(size:10,weight:.semibold,design:.rounded)).monospacedDigit() }
         }
         .accessibilityElement(children:.combine).accessibilityLabel(Text(L10n.text("Conversion progress")))
+    }
+
+    private var mediaControlCard: some View {
+        VStack(spacing:6) {
+            HStack(spacing:9) {
+                Image(systemName:"waveform").font(.system(size:13,weight:.medium)).foregroundStyle(.white.opacity(0.7))
+                VStack(alignment:.leading,spacing:2) {
+                    Text(L10n.text("Nashi media preview")).font(.system(size:9,weight:.semibold,design:.rounded)).foregroundStyle(.white.opacity(0.58))
+                    Text(media.mediaURL?.lastPathComponent ?? "").font(.system(size:10,weight:.medium,design:.rounded)).lineLimit(1).truncationMode(.middle)
+                }
+                Spacer(minLength:4)
+                Text(mediaTime(media.playhead)).font(.system(size:9,weight:.medium,design:.rounded)).monospacedDigit().foregroundStyle(.white.opacity(0.75))
+                Button { media.togglePlayback() } label: { Image(systemName:media.isPlaying ? "pause.fill":"play.fill") }
+                    .buttonStyle(NotchIconButtonStyle())
+                    .accessibilityIdentifier("NashiPreviewPlayPause")
+                    .accessibilityLabel(Text(L10n.text(media.isPlaying ? "Pause Nashi preview":"Play Nashi preview")))
+            }
+            HStack(spacing:8) {
+                Text(mediaTime(media.playhead)).font(.system(size:8,design:.rounded)).monospacedDigit().foregroundStyle(.white.opacity(0.48))
+                Slider(value:Binding(get:{isSeekingMedia ? mediaSeekPosition:media.playhead},set:{mediaSeekPosition=$0}),in:0...max(media.duration,1),onEditingChanged:{ editing in
+                    if editing { mediaSeekPosition=media.playhead;isSeekingMedia=true }
+                    else { media.seek(to:mediaSeekPosition);isSeekingMedia=false }
+                })
+                .tint(.white)
+                .disabled(media.duration<=0)
+                .accessibilityIdentifier("NashiPreviewSeek")
+                .accessibilityLabel(Text(L10n.text("Seek Nashi media preview")))
+                Text(mediaTime(media.duration)).font(.system(size:8,design:.rounded)).monospacedDigit().foregroundStyle(.white.opacity(0.48))
+            }
+        }
+        .padding(.horizontal,11).padding(.vertical,8)
+        .background(Color.white.opacity(0.065),in:RoundedRectangle(cornerRadius:14,style:.continuous))
+        .overlay(RoundedRectangle(cornerRadius:14,style:.continuous).strokeBorder(Color.white.opacity(0.09),lineWidth:1))
+    }
+
+    private func mediaTime(_ seconds:Double)->String {
+        guard seconds.isFinite,seconds>=0 else { return "0:00" }
+        let whole=Int(seconds),minutes=whole/60,hours=minutes/60
+        return hours>0 ? String(format:"%d:%02d:%02d",hours,minutes%60,whole%60):String(format:"%d:%02d",minutes,whole%60)
     }
 
     private var dropShelf: some View {

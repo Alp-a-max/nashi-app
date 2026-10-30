@@ -1267,6 +1267,7 @@
 "NASHI CHECKS ONCE AN HOUR WHILE IT’S RUNNING. YOU CHOOSE WHEN TO DOWNLOAD AND INSTALL." = "NASHI VÉRIFIE UNE FOIS PAR HEURE PENDANT SON EXÉCUTION. VOUS CHOISISSEZ QUAND TÉLÉCHARGER ET INSTALLER.";
 "NASHI IS ALREADY RUNNING BUT IS STILL STARTING. OPEN IT FROM THE SYSTEM TRAY OR TRY AGAIN IN A MOMENT." = "NASHI EST DÉJÀ OUVERT MAIS DÉMARRE ENCORE. OUVREZ-LE DEPUIS LA ZONE DE NOTIFICATION OU RÉESSAYEZ DANS UN INSTANT.";
 "NASHI IS STILL RUNNING." = "NASHI EST TOUJOURS EN COURS D’EXÉCUTION.";
+"NASHI MEDIA PREVIEW" = "NASHI MEDIA PREVIEW";
 "NASHI SAVES RESULTS BESIDE THE ORIGINALS. ALLOW A FOLDER ONCE TO INCLUDE EVERY FOLDER INSIDE IT." = "NASHI ENREGISTRE LES RÉSULTATS À CÔTÉ DES ORIGINAUX. AUTORISEZ UN DOSSIER UNE SEULE FOIS POUR INCLURE TOUS LES DOSSIERS QU’IL CONTIENT.";
 "NASHI SETTINGS" = "RÉGLAGES DE NASHI";
 "NASHI UPDATE" = "MISE À JOUR DE NASHI";
@@ -1309,6 +1310,7 @@
 "Nashi checks once an hour while it’s running. You choose when to download and install." = "Nashi vérifie une fois par heure pendant son exécution. Vous choisissez quand télécharger et installer.";
 "Nashi is already running but is still starting. Open it from the system tray or try again in a moment." = "Nashi est déjà ouvert mais démarre encore. Ouvrez-le depuis la zone de notification ou réessayez dans un instant.";
 "Nashi is still running." = "Nashi est toujours en cours d’exécution.";
+"Nashi media preview" = "Nashi media preview";
 "Nashi saves results beside the originals. Allow a folder once to include every folder inside it." = "Nashi enregistre les résultats à côté des originaux. Autorisez un dossier une seule fois pour inclure tous les dossiers qu’il contient.";
 "Nashi update" = "Mise à jour de Nashi";
 "Nashi update could not finish" = "La mise à jour de Nashi n’a pas pu se terminer";
@@ -1445,6 +1447,7 @@
 "PASTED TEXT" = "TEXTE COLLÉ";
 "PAUSE" = "PAUSE";
 "PAUSE FOCUS TIMER" = "PAUSE FOCUS TIMER";
+"PAUSE NASHI PREVIEW" = "PAUSE NASHI PREVIEW";
 "PDF FORM APPEARANCES COULD NOT BE PREPARED." = "IMPOSSIBLE DE PRÉPARER L’APPARENCE DES FORMULAIRES PDF.";
 "PDF LAYOUT" = "MISE EN PAGE DU PDF";
 "PDF OUTPUT LAYOUT" = "MISE EN PAGE DE SORTIE PDF";
@@ -1467,6 +1470,7 @@
 "PIXELATE" = "PIXELLISER";
 "PLAY" = "LIRE";
 "PLAY / PAUSE" = "LECTURE / PAUSE";
+"PLAY NASHI PREVIEW" = "PLAY NASHI PREVIEW";
 "PLAY RESULT" = "LIRE LE RÉSULTAT";
 "PLAY SELECTED RANGE" = "LIRE LA PLAGE SÉLECTIONNÉE";
 "PLAYBACK / DOCUMENT ORDER" = "ORDRE DE LECTURE / DU DOCUMENT";
@@ -1519,6 +1523,7 @@
 "Pasted image" = "Image collée";
 "Pasted text" = "Texte collé";
 "Pause" = "Pause";
+"Pause Nashi preview" = "Pause Nashi preview";
 "Pause focus timer" = "Pause focus timer";
 "Photos" = "Photos";
 "Pick a folder you work in. Fresh copies are saved beside the originals by default." = "Choisissez un dossier dans lequel vous travaillez. Par défaut, les nouvelles copies sont enregistrées à côté des originaux.";
@@ -1526,6 +1531,7 @@
 "Pixelate" = "Pixelliser";
 "Play" = "Lire";
 "Play / pause" = "Lecture / pause";
+"Play Nashi preview" = "Play Nashi preview";
 "Play Result" = "Lire le résultat";
 "Play Selected Range" = "Lire la plage sélectionnée";
 "Play selected range" = "Lire la plage sélectionnée";
@@ -1752,6 +1758,7 @@
 "SECONDS" = "SECONDES";
 "SEE ALL  ↗" = "TOUT VOIR  ↗";
 "SEE ALL RECENT FILES" = "VOIR TOUS LES FICHIERS RÉCENTS";
+"SEEK NASHI MEDIA PREVIEW" = "SEEK NASHI MEDIA PREVIEW";
 "SELECT / MOVE" = "SÉLECTIONNER / DÉPLACER";
 "SELECT A CLIP AND PRESS DELETE TO REMOVE IT FROM THE RESULT." = "SÉLECTIONNEZ UN CLIP ET APPUYEZ SUR SUPPRIMER POUR LE RETIRER DU RÉSULTAT.";
 "SELECT ALL" = "TOUT SÉLECTIONNER";
@@ -1890,6 +1897,7 @@
 "Seconds" = "Secondes";
 "See all  ↗" = "Tout voir  ↗";
 "See all recent files" = "Voir tous les fichiers récents";
+"Seek Nashi media preview" = "Seek Nashi media preview";
 "Select / Move" = "Sélectionner / Déplacer";
 "Select All" = "Tout sélectionner";
 "Select a clip and press Delete to remove it from the result." = "Sélectionnez un clip et appuyez sur Supprimer pour le retirer du résultat.";

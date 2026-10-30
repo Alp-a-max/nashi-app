@@ -164,7 +164,7 @@ final class AppLocalizationTests:XCTestCase {
     }
 
     func testNotchWidgetsHaveTurkishCopy() {
-        for source in ["Widgets","Focus timer","Quick note","To-do list","Add a task","Start focus timer","Pause focus timer","Reset focus timer","A quiet {0}-minute session","Set focus timer to {0} minutes","Add to Float","Keep these files together in a floating shelf","Paste files, text, an image, or a link from the clipboard","Notes and tasks stay on this Mac."] {
+        for source in ["Widgets","Focus timer","Quick note","To-do list","Add a task","Start focus timer","Pause focus timer","Reset focus timer","A quiet {0}-minute session","Set focus timer to {0} minutes","Add to Float","Keep these files together in a floating shelf","Paste files, text, an image, or a link from the clipboard","Pause Nashi preview","Play Nashi preview","Nashi media preview","Seek Nashi media preview","Notes and tasks stay on this Mac."] {
             XCTAssertNotEqual(AppLocalization.text(source,language:"tr"),source,source)
         }
         XCTAssertEqual(AppLocalization.text("A quiet 15-minute session",language:"tr"),"Sakin bir 15 dakikalık oturum")

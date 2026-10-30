@@ -59,7 +59,7 @@ import NashiCore
         accessory.appearance=NSAppearance(named:.darkAqua)
 
         let host=NotchTrackingHostView(frame:NSRect(origin:.zero,size:frame.size))
-        let content=NotchWorkspaceView(state:state,model:model,onChooseFiles:chooseFiles,onChooseTool:chooseTool)
+        let content=NotchWorkspaceView(state:state,model:model,media:state.filePreview,onChooseFiles:chooseFiles,onChooseTool:chooseTool)
         let hosting=NSHostingView(rootView:content)
         hosting.frame=host.bounds
         hosting.autoresizingMask=[.width,.height]

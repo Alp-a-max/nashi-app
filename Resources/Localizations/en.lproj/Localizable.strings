@@ -1267,6 +1267,7 @@
 "NASHI CHECKS ONCE AN HOUR WHILE IT’S RUNNING. YOU CHOOSE WHEN TO DOWNLOAD AND INSTALL." = "NASHI CHECKS ONCE AN HOUR WHILE IT’S RUNNING. YOU CHOOSE WHEN TO DOWNLOAD AND INSTALL.";
 "NASHI IS ALREADY RUNNING BUT IS STILL STARTING. OPEN IT FROM THE SYSTEM TRAY OR TRY AGAIN IN A MOMENT." = "NASHI IS ALREADY RUNNING BUT IS STILL STARTING. OPEN IT FROM THE SYSTEM TRAY OR TRY AGAIN IN A MOMENT.";
 "NASHI IS STILL RUNNING." = "NASHI IS STILL RUNNING.";
+"NASHI MEDIA PREVIEW" = "NASHI MEDIA PREVIEW";
 "NASHI SAVES RESULTS BESIDE THE ORIGINALS. ALLOW A FOLDER ONCE TO INCLUDE EVERY FOLDER INSIDE IT." = "NASHI SAVES RESULTS BESIDE THE ORIGINALS. ALLOW A FOLDER ONCE TO INCLUDE EVERY FOLDER INSIDE IT.";
 "NASHI SETTINGS" = "NASHI SETTINGS";
 "NASHI UPDATE" = "NASHI UPDATE";
@@ -1309,6 +1310,7 @@
 "Nashi checks once an hour while it’s running. You choose when to download and install." = "Nashi checks once an hour while it’s running. You choose when to download and install.";
 "Nashi is already running but is still starting. Open it from the system tray or try again in a moment." = "Nashi is already running but is still starting. Open it from the system tray or try again in a moment.";
 "Nashi is still running." = "Nashi is still running.";
+"Nashi media preview" = "Nashi media preview";
 "Nashi saves results beside the originals. Allow a folder once to include every folder inside it." = "Nashi saves results beside the originals. Allow a folder once to include every folder inside it.";
 "Nashi update" = "Nashi update";
 "Nashi update could not finish" = "Nashi update could not finish";
@@ -1445,6 +1447,7 @@
 "PASTED TEXT" = "PASTED TEXT";
 "PAUSE" = "PAUSE";
 "PAUSE FOCUS TIMER" = "PAUSE FOCUS TIMER";
+"PAUSE NASHI PREVIEW" = "PAUSE NASHI PREVIEW";
 "PDF FORM APPEARANCES COULD NOT BE PREPARED." = "PDF FORM APPEARANCES COULD NOT BE PREPARED.";
 "PDF LAYOUT" = "PDF LAYOUT";
 "PDF OUTPUT LAYOUT" = "PDF OUTPUT LAYOUT";
@@ -1467,6 +1470,7 @@
 "PIXELATE" = "PIXELATE";
 "PLAY" = "PLAY";
 "PLAY / PAUSE" = "PLAY / PAUSE";
+"PLAY NASHI PREVIEW" = "PLAY NASHI PREVIEW";
 "PLAY RESULT" = "PLAY RESULT";
 "PLAY SELECTED RANGE" = "PLAY SELECTED RANGE";
 "PLAYBACK / DOCUMENT ORDER" = "PLAYBACK / DOCUMENT ORDER";
@@ -1519,6 +1523,7 @@
 "Pasted image" = "Pasted image";
 "Pasted text" = "Pasted text";
 "Pause" = "Pause";
+"Pause Nashi preview" = "Pause Nashi preview";
 "Pause focus timer" = "Pause focus timer";
 "Photos" = "Photos";
 "Pick a folder you work in. Fresh copies are saved beside the originals by default." = "Pick a folder you work in. Fresh copies are saved beside the originals by default.";
@@ -1526,6 +1531,7 @@
 "Pixelate" = "Pixelate";
 "Play" = "Play";
 "Play / pause" = "Play / pause";
+"Play Nashi preview" = "Play Nashi preview";
 "Play Result" = "Play Result";
 "Play Selected Range" = "Play Selected Range";
 "Play selected range" = "Play selected range";
@@ -1752,6 +1758,7 @@
 "SECONDS" = "SECONDS";
 "SEE ALL  ↗" = "SEE ALL  ↗";
 "SEE ALL RECENT FILES" = "SEE ALL RECENT FILES";
+"SEEK NASHI MEDIA PREVIEW" = "SEEK NASHI MEDIA PREVIEW";
 "SELECT / MOVE" = "SELECT / MOVE";
 "SELECT A CLIP AND PRESS DELETE TO REMOVE IT FROM THE RESULT." = "SELECT A CLIP AND PRESS DELETE TO REMOVE IT FROM THE RESULT.";
 "SELECT ALL" = "SELECT ALL";
@@ -1890,6 +1897,7 @@
 "Seconds" = "Seconds";
 "See all  ↗" = "See all  ↗";
 "See all recent files" = "See all recent files";
+"Seek Nashi media preview" = "Seek Nashi media preview";
 "Select / Move" = "Select / Move";
 "Select All" = "Select All";
 "Select a clip and press Delete to remove it from the result." = "Select a clip and press Delete to remove it from the result.";
