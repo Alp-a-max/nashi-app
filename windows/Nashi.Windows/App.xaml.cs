@@ -17,6 +17,12 @@ public partial class App:Application
         DispatcherUnhandledException+=(_,error)=>{var folder=Environment.GetEnvironmentVariable("NASHI_SMOKE_DIRECTORY");if(folder is not null){Directory.CreateDirectory(folder);File.WriteAllText(Path.Combine(folder,"dispatcher-error.txt"),error.Exception.ToString());error.Handled=true;Shutdown(1);}};
         base.OnStartup(e);
 #if DEBUG
+        if(e.Args.Contains("--tool-buttons-smoke"))
+        {
+            IsSmokeTest=true;ShutdownMode=ShutdownMode.OnExplicitShutdown;
+            var index=Array.IndexOf(e.Args,"--tool-buttons-smoke");var output=index+1<e.Args.Length?e.Args[index+1]:Path.Combine(Path.GetTempPath(),"Nashi-Tool-Buttons-Smoke");
+            try{Shutdown(ToolButtonsSmokeChecks.Run(output));}catch(Exception error){Console.Error.WriteLine(error);Shutdown(1);}return;
+        }
         if(e.Args.Contains("--pill-mode-smoke"))
         {
             IsSmokeTest=true;IsPillModeSmoke=true;ShutdownMode=ShutdownMode.OnExplicitShutdown;

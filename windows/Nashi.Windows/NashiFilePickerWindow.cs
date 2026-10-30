@@ -39,6 +39,7 @@ internal sealed class NashiFilePickerWindow : Window
     internal bool UIAuditSingleSelection => fileList.SelectionMode == SelectionMode.Single;
     internal bool UIAuditFirstItemIsFile => visibleEntries.Count > 0 && !visibleEntries[0].IsDirectory;
     internal bool UIAuditHasVisibleFile(string name) => visibleEntries.Any(entry => !entry.IsDirectory && entry.Name == name);
+    internal IReadOnlyList<string> UIAuditAllowedExtensions => allowedExtensions?.Order(StringComparer.OrdinalIgnoreCase).ToArray() ?? [];
     internal static IReadOnlyList<string> UIAuditSortPaths(IEnumerable<string> files, IEnumerable<string> folders, bool downloads)
     {
         var entries = files.Select(path => new Entry(path, Path.GetFileName(path), "", false))

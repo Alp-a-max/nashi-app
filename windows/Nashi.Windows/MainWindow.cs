@@ -74,6 +74,8 @@ public sealed partial class MainWindow:Window
     internal bool UIAuditHiddenByAutomation=>islandHiddenByAutomation;
     internal bool UIAuditActionsPopupOpen=>islandActionPopup?.IsOpen==true;
     internal FrameworkElement? UIAuditActionsPopupSurface=>islandActionPopup?.Child as FrameworkElement;
+    internal IReadOnlyList<Button> UIAuditToolButtons=>islandWidgetHost?.Children.OfType<UniformGrid>().SelectMany(grid=>grid.Children.OfType<Button>()).ToArray()??[];
+    internal void UIAuditSetFiles(IEnumerable<string> paths){files.Clear();Add(paths);}
     internal void UIAuditShowWorkspace(bool libraryView)=>ShowIslandWorkspace(libraryView);
     internal void UIAuditPresentIsland(bool expanded,string tab="actions")
     {
@@ -119,7 +121,7 @@ public sealed partial class MainWindow:Window
         monitorToolSetup=checkForUpdates;
         this.library=library??new LibraryStore();preferences=new(this.library.DirectoryPath);islandWidgetPath=Path.Combine(App.IsSmokeTest?this.library.DirectoryPath:Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+Path.DirectorySeparatorChar+"Nashi","island-widgets.json");LoadIslandWidgets();ApplyPreferences();Theme.Apply(this.library.Appearance,preferences.Value.PillAccentColor);Theme.Attach(this);
         Title="Nashi";Width=980;Height=720;MinWidth=760;MinHeight=540;WindowStyle=WindowStyle.SingleBorderWindow;AllowsTransparency=false;Background=Theme.Brush("Paper");ResizeMode=ResizeMode.CanResize;Topmost=false;ShowInTaskbar=true;WindowStartupLocation=WindowStartupLocation.CenterScreen;AllowDrop=true;
-        Icon=BitmapFrame.Create(new Uri("pack://application:,,,/Assets/NashiIcon.png"));
+        Icon=BitmapFrame.Create(new Uri("pack://application:,,,/Assets/NashiMascot.png"));
         var root=new DockPanel{Margin=new(28,18,28,18)};Background=Brushes.Transparent;AddHandler(UIElement.PreviewMouseWheelEvent,new MouseWheelEventHandler(RoutePageMouseWheel),true);
         var header=new DockPanel{Margin=new(0,0,0,18)};DockPanel.SetDock(header,Dock.Top);root.Children.Add(header);
         var controls=new WrapPanel{HorizontalAlignment=HorizontalAlignment.Right,VerticalAlignment=VerticalAlignment.Center};DockPanel.SetDock(controls,Dock.Right);header.Children.Add(controls);
@@ -313,7 +315,7 @@ public sealed partial class MainWindow:Window
             var tools=new UniformGrid{Columns=5};foreach(var (id,title) in FeatureCatalog.ToolNames.OrderBy(pair=>pair.Value,StringComparer.CurrentCultureIgnoreCase))
             {
                 var button=new Button{Height=30,Margin=new(1),Padding=new(2),Background=Brushes.Transparent,BorderThickness=new(0),Cursor=Cursors.Hand,ToolTip=L10n.Text(title)};var choice=new ToolChoice(id switch{"cropImage"=>"crop","annotateImage"=>"annotate","mergePDF"=>"mergePDFs",_=>id},title,ToolSymbol(id));
-                var content=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center};content.Children.Add(new TextBlock{Text=ToolSymbol(id),FontFamily=new FontFamily("Segoe UI Symbol"),FontSize=15,Foreground=Theme.Brush("Gold"),VerticalAlignment=VerticalAlignment.Center});content.Children.Add(new TextBlock{Text=L10n.Text(title),FontSize=9,Foreground=Theme.Brush("Ink"),Margin=new(5,0,0,0),VerticalAlignment=VerticalAlignment.Center,TextWrapping=TextWrapping.Wrap,MaxWidth=92});button.Content=content;AutomationProperties.SetName(button,L10n.Text(title));button.Click+=async(_,_)=>{if(busy)return;if(files.Count==0){await ChooseForTool(choice);return;}if(Choices().Any(item=>item.Id==choice.Id))await EditAsync(choice);else L10n.SetText(status,"This tool does not support the selected files.");};tools.Children.Add(button);
+                var content=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center};content.Children.Add(new TextBlock{Text=ToolSymbol(id),FontFamily=new FontFamily("Segoe UI Symbol"),FontSize=15,Foreground=Theme.Brush("Gold"),VerticalAlignment=VerticalAlignment.Center});content.Children.Add(new TextBlock{Text=L10n.Text(title),FontSize=9,Foreground=Theme.Brush("Ink"),Margin=new(5,0,0,0),VerticalAlignment=VerticalAlignment.Center,TextWrapping=TextWrapping.Wrap,MaxWidth=92});button.Content=content;AutomationProperties.SetName(button,L10n.Text(title));button.Click+=async(_,_)=>{if(busy)return;if(files.Count==0||!Choices().Any(item=>item.Id==choice.Id)){await ChooseForTool(choice);return;}await EditAsync(choice);};tools.Children.Add(button);
             }
             islandWidgetHost.Children.Add(tools);return;
         }
@@ -671,7 +673,7 @@ public sealed partial class MainWindow:Window
         items.Children.Add(new Border{Height=1,Margin=new(7,6,7,6),Background=Theme.Brush("Line")});
         var catalogHeading=Text("TOOLS AND FORMATS",9,"Muted");catalogHeading.Margin=new(9,4,8,2);items.Children.Add(catalogHeading);
         foreach(var (id,title) in FeatureCatalog.ToolNames.OrderBy(pair=>pair.Value,StringComparer.CurrentCultureIgnoreCase))
-            AddIslandActionItem(items,"Tool · "+title,()=>{var choice=new ToolChoice(id switch{"cropImage"=>"crop","annotateImage"=>"annotate","mergePDF"=>"mergePDFs",_=>id},title,ToolSymbol(id));if(files.Count==0||((choice.Id is "splitPDF" or "organizePDF")&&!All(["pdf"]))) {_ = ChooseForTool(choice);return;}if(Choices().Any(item=>item.Id==choice.Id))_ = EditAsync(choice);else L10n.SetText(status,"This tool does not support the selected files.");});
+            AddIslandActionItem(items,"Tool · "+title,()=>{var choice=new ToolChoice(id switch{"cropImage"=>"crop","annotateImage"=>"annotate","mergePDF"=>"mergePDFs",_=>id},title,ToolSymbol(id));if(files.Count==0||((choice.Id is "splitPDF" or "organizePDF")&&!All(["pdf"]))||!Choices().Any(item=>item.Id==choice.Id)) {_ = ChooseForTool(choice);return;}_ = EditAsync(choice);});
         foreach(var format in FeatureCatalog.Conversions.Values.SelectMany(values=>values).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.CurrentCultureIgnoreCase))
             AddIslandActionItem(items,"Convert to "+format.ToUpperInvariant(),()=>{if(files.Count==0){Choose();return;}_ = EditAsync(new ToolChoice("convert:"+format,"Convert to "+format.ToUpperInvariant(),"↗"));});
         if(!string.IsNullOrWhiteSpace(islandNoteText))AddIslandActionItem(items,"Note · "+IslandSearchExcerpt(islandNoteText),()=>OpenIslandWidget("notes"));
@@ -878,7 +880,7 @@ public sealed partial class MainWindow:Window
     private void Choose(){if(busy)return;var picker=new NashiFilePickerWindow(this);if(picker.ShowDialog()==true){Add(picker.SelectedPaths);ShowLibrary(false);}}
     private async Task ChooseForTool(ToolChoice choice)
     {
-        if(busy)return;var pdfOnly=choice.Id is "organizePDF" or "splitPDF";var picker=new NashiFilePickerWindow(this,fileExtensions:pdfOnly?["pdf"]:null,allowMultiple:choice.Id!="organizePDF",purpose:pdfOnly?"pdf":"generic");if(picker.ShowDialog()!=true)return;files.Clear();Add(picker.SelectedPaths);ShowLibrary(false);if(!Choices().Any(item=>item.Id==choice.Id)){L10n.SetText(status,"This tool does not support the selected files.");return;}await EditAsync(choice);
+        if(busy)return;var pdfOnly=choice.Id is "organizePDF" or "splitPDF";string[]? extensions=pdfOnly?["pdf"]:choice.Id=="audioToVideo"?["mp3","m4a","wav","flac"]:null;var picker=new NashiFilePickerWindow(this,fileExtensions:extensions,allowMultiple:choice.Id!="organizePDF",purpose:pdfOnly?"pdf":"generic");if(picker.ShowDialog()!=true)return;files.Clear();Add(picker.SelectedPaths);ShowLibrary(false);if(!Choices().Any(item=>item.Id==choice.Id)){L10n.SetText(status,"This tool does not support the selected files.");return;}await EditAsync(choice);
     }
     private void Add(IEnumerable<string> paths){foreach(var path in paths.Where(p=>File.Exists(p)||Directory.Exists(p))){var full=Path.GetFullPath(path);if(!files.Contains(full))files.Add(full);}Refresh();}
     internal void ShowLibrary(bool visible)

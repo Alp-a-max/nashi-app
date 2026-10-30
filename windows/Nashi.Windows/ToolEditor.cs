@@ -24,6 +24,7 @@ public sealed partial class ToolEditor:Window
     internal TextBox FieldForTest(string name)=>fields[name];
     internal string SplitSummaryForTest=>splitSummary?.Text??"";
     internal bool AcceptForTest()=>ReadSettings(false);
+    internal string UIAuditInputPath=>input;
     private readonly string input;private readonly MediaInfo? media;private readonly StackPanel options=new(){Margin=new(18,0,0,0)};
     public ToolEditor(Window owner,string tool,string title,string input,MediaInfo? media=null,BitmapSource? preview=null,IReadOnlyList<string>? inputs=null,string[]? outputFormats=null)
     {
