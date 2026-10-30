@@ -36,3 +36,6 @@
 - Stil Galerisi: `verified-gallery/style-gallery.png`
 - Hap ve modül akışları: `verified-final/*.png`
 - Son görsel gözden geçirmede not alanı odağı altın renge, Ayna önizlemesi 260 px panel yüksekliğine sığacak ölçüye getirildi.
+## A�ama B � �ekirdek mod�ller
+
+? Tepsi, Medya, Ara�lar ve yerel arama; sentetik denetimde do�ruland�. G�rseller: erified-final/module-tray.png, module-media.png, module-tools.png.
