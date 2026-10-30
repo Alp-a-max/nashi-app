@@ -78,6 +78,11 @@ public struct NotchFocusTimer: Equatable {
 
     public mutating func pause() { isRunning=false }
 
+    public mutating func restart() {
+        remainingSeconds=durationSeconds
+        isRunning=false
+    }
+
     public mutating func reset(durationSeconds:Int=NotchFocusTimer.defaultDurationSeconds) {
         self.durationSeconds=max(1,durationSeconds)
         remainingSeconds=self.durationSeconds

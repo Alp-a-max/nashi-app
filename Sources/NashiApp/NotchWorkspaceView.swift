@@ -124,7 +124,7 @@ import NashiCore
 
     func toggleFocusTimer() {
         if focusTimer.isRunning { pauseFocusTimer();return }
-        if focusTimer.remainingSeconds==0 { focusTimer.reset() }
+        if focusTimer.remainingSeconds==0 { focusTimer.restart() }
         focusTimer.start();publishFocusTimer()
         focusTick?.invalidate()
         focusTick=Timer.scheduledTimer(withTimeInterval:1,repeats:true) { [weak self] _ in
@@ -134,7 +134,7 @@ import NashiCore
 
     func resetFocusTimer() {
         focusTick?.invalidate();focusTick=nil
-        focusTimer.reset(durationSeconds:focusTimer.durationSeconds);publishFocusTimer()
+        focusTimer.restart();publishFocusTimer()
     }
 
     func selectFocusDuration(minutes:Int) {
@@ -223,6 +223,7 @@ struct NotchWorkspaceView: View {
         .shadow(color:.black.opacity(0.35),radius:18,y:9)
         .animation(NashiMotion.enabled ? .spring(response:0.35,dampingFraction:0.78):nil,value:model.isExpanded)
         .animation(NashiMotion.enabled ? .easeOut(duration:0.16):nil,value:model.pointerInside)
+        .onChange(of:media.mediaURL) { _ in isSeekingMedia=false;mediaSeekPosition=0 }
         .accessibilityElement(children:.contain)
     }
 

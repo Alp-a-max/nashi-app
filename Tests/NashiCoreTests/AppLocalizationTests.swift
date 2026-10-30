@@ -128,6 +128,16 @@ final class AppLocalizationTests:XCTestCase {
         XCTAssertEqual(NotchFocusTimer.presetMinutes,[5,15,25,45])
     }
 
+    func testCompletedFocusTimerRestartsWithItsSelectedDuration() {
+        var timer=NotchFocusTimer(durationSeconds:1)
+        timer.start()
+        XCTAssertTrue(timer.tick())
+        timer.restart()
+        XCTAssertEqual(timer.durationSeconds,1)
+        XCTAssertEqual(timer.remainingSeconds,1)
+        XCTAssertFalse(timer.isRunning)
+    }
+
     func testNotchMediaSeekStaysInsideTheMediaTimeline() {
         XCTAssertEqual(NotchMediaControl.targetTime(current:3,offset:-10,duration:40)!,0.0)
         XCTAssertEqual(NotchMediaControl.targetTime(current:35,offset:10,duration:40)!,40.0)
