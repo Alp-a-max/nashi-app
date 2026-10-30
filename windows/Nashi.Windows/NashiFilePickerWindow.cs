@@ -39,6 +39,12 @@ internal sealed class NashiFilePickerWindow : Window
     internal bool UIAuditSingleSelection => fileList.SelectionMode == SelectionMode.Single;
     internal bool UIAuditFirstItemIsFile => visibleEntries.Count > 0 && !visibleEntries[0].IsDirectory;
     internal bool UIAuditHasVisibleFile(string name) => visibleEntries.Any(entry => !entry.IsDirectory && entry.Name == name);
+    internal static IReadOnlyList<string> UIAuditSortPaths(IEnumerable<string> files, IEnumerable<string> folders, bool downloads)
+    {
+        var entries = files.Select(path => new Entry(path, Path.GetFileName(path), "", false))
+            .Concat(folders.Select(path => new Entry(path, Path.GetFileName(path), "", true)));
+        return SortEntries(entries, downloads).Select(entry => entry.Name).ToArray();
+    }
     internal FrameworkElement? UIAuditSurface => Content as FrameworkElement;
 
     internal NashiFilePickerWindow(Window owner, string? initialDirectory = null, IEnumerable<string>? fileExtensions = null, bool allowMultiple = true, string purpose = "generic")
@@ -407,7 +413,7 @@ internal sealed class NashiFilePickerWindow : Window
                     .Where(file => allowedExtensions is null || allowedExtensions.Contains(FeatureCatalog.Extension(file)))
                     .Select(file => new FileInfo(file))
                     .Select(file => new Entry(file.FullName, file.Name, FormatSize(file.Length), false));
-                return directories.Concat(files).OrderBy(entry => entry.IsDirectory).ThenBy(entry => entry.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
+                return SortEntries(directories.Concat(files), IsDownloadsDirectory(destinationPath));
             });
             if (generation != loadGeneration) return;
             if (remember && oldPath != destinationPath)
@@ -444,6 +450,20 @@ internal sealed class NashiFilePickerWindow : Window
                 statusLabel.Text = error.Message;
             }
         }
+    }
+
+    private static bool IsDownloadsDirectory(string path)
+    {
+        var downloadsPath = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"));
+        return string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)), Path.TrimEndingDirectorySeparator(downloadsPath), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static List<Entry> SortEntries(IEnumerable<Entry> entries, bool prioritizeMedia)
+    {
+        return entries
+            .OrderBy(entry => entry.IsDirectory ? (prioritizeMedia ? 2 : 1) : prioritizeMedia ? (FeatureCatalog.IsImage(entry.Path) || FeatureCatalog.IsVideo(entry.Path) ? 0 : 1) : 0)
+            .ThenBy(entry => entry.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
     }
 
     private static string FormatSize(long bytes)
