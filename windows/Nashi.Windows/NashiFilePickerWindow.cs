@@ -37,6 +37,7 @@ internal sealed class NashiFilePickerWindow : Window
     internal bool UIAuditReady => IsLoaded && allEntries.Count > 0 && fileList.Items.Count > 0;
     internal bool UIAuditHasSyntheticFiles => allEntries.Any(entry => entry.Name == "Example image.png") && allEntries.Any(entry => entry.Name == "Example notes.txt");
     internal bool UIAuditSingleSelection => fileList.SelectionMode == SelectionMode.Single;
+    internal bool UIAuditFirstItemIsFile => visibleEntries.Count > 0 && !visibleEntries[0].IsDirectory;
     internal bool UIAuditHasVisibleFile(string name) => visibleEntries.Any(entry => !entry.IsDirectory && entry.Name == name);
     internal FrameworkElement? UIAuditSurface => Content as FrameworkElement;
 
@@ -406,7 +407,7 @@ internal sealed class NashiFilePickerWindow : Window
                     .Where(file => allowedExtensions is null || allowedExtensions.Contains(FeatureCatalog.Extension(file)))
                     .Select(file => new FileInfo(file))
                     .Select(file => new Entry(file.FullName, file.Name, FormatSize(file.Length), false));
-                return directories.Concat(files).OrderByDescending(entry => entry.IsDirectory).ThenBy(entry => entry.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
+                return directories.Concat(files).OrderBy(entry => entry.IsDirectory).ThenBy(entry => entry.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
             });
             if (generation != loadGeneration) return;
             if (remember && oldPath != destinationPath)
