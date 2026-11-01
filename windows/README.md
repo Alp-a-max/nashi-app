@@ -11,7 +11,7 @@ dotnet publish windows/Nashi.Windows -c Release -o build/windows/Nashi
 .\build\windows\Nashi\Nashi.exe
 ```
 
-The published folder is self-contained. Keep its files together. Some media, office and metadata features require additional tools; their versions, hashes and licenses are documented in [dependencies](../docs/dependencies.md). This branch does not provide its own published release or update feed; existing update code originates upstream.
+The published folder is self-contained. Keep its files together. Some media, office and metadata features require additional tools; their versions, hashes and licenses are documented in [dependencies](../docs/dependencies.md). An unsigned [Windows preview ZIP](https://github.com/Alp-a-max/nashi-app/releases/tag/windows-preview-1) is available. Existing update code checks upstream Nashi; installing an offered update can replace this preview with the upstream app. Disable automatic checks in Settings → Updates and do not install an upstream update to keep this version.
 
 ## Use
 

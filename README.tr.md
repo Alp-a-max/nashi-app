@@ -5,7 +5,7 @@
 
 Nashi, sık kullanılan dosya işlemlerini küçük ve klavyeyle erişilebilir bir Windows çalışma alanında toplar. Bu depo, açık kaynak Nashi projesinin Windows odaklı geliştirmesini; yenilenmiş hap arayüzünü, monokrom cam tasarımını ve yeni maskotunu içerir.
 
-> **Geliştirme sürümü:** Yenilenen Windows sürümü geliştirilmeye devam ediyor. Aşağıdaki görseller sentetik verilerle alınmış, uygulamanın kendi penceresine ait WPF renderlarıdır; tüm etkileşimlerin çalıştığının kanıtı değildir. Bu sürüm için bu depoda henüz bir yayın paketi bulunmuyor.
+> **Geliştirme sürümü:** Yenilenen Windows sürümü geliştirilmeye devam ediyor. Aşağıdaki görseller sentetik verilerle alınmış, uygulamanın kendi penceresine ait WPF renderlarıdır; tüm etkileşimlerin çalıştığının kanıtı değildir. İndirilebilir paket imzasız bir önizleme sürümüdür.
 
 ## Çalışma alanı
 
@@ -24,6 +24,12 @@ Nashi, sık kullanılan dosya işlemlerini küçük ve klavyeyle erişilebilir b
 
 Görselleştirici tek bir uygulamanın sesini değil, varsayılan Windows çıkış aygıtının seviyesini gösterir. Akıllı mod ön plandaki pencereye bakar; Peek medya değişikliklerine ve Nashi'nin kendi bildirimlerine tepki verir. Tam ekran oyunlar, anti-cheat yazılımları ve fiziksel çoklu monitörler için daha fazla test gerekir.
 
+## Windows için indir
+
+[Windows x64 önizleme ZIP dosyasını indir](https://github.com/Alp-a-max/nashi-app/releases/tag/windows-preview-1) · Arşivin tamamını bir klasöre çıkar ve `Nashi.exe` dosyasını aç. Sürüm sayfasında SHA-256 doğrulama özeti bulunur.
+
+**Güncellemeler:** Uygulamanın mevcut güncelleme denetimi kaynak Nashi deposunu kontrol eder. Teklif edilen güncellemeyi kurmak bu önizlemeyi kaynak sürümle değiştirebilir. Bu sürümü korumak için Ayarlar → Güncellemeler bölümünde otomatik denetimi kapat ve kaynak güncellemeyi kurma.
+
 ## Derleme ve çalıştırma
 
 Derlemek için Windows x64 ve **.NET 10 SDK** gerekir. Depo kökünde:
@@ -33,7 +39,7 @@ dotnet publish windows/Nashi.Windows -c Release -o build/windows/Nashi
 .\build\windows\Nashi\Nashi.exe
 ```
 
-Çıktı kendi çalışma zamanını içerir; dosyaları aynı klasörde tut. Bazı medya ve belge özellikleri uygulamanın kurulum akışındaki ek araçları gerektirir. Mevcut güncelleme altyapısı kaynak Nashi projesine aittir; bu geliştirme dalı için ayrı bir güncelleme kaynağı veya yayın paketi ilan edilmemiştir.
+Çıktı kendi çalışma zamanını içerir; dosyaları aynı klasörde tut. Bazı medya ve belge özellikleri uygulamanın kurulum akışındaki ek araçları gerektirir. Mevcut güncelleme altyapısı kaynak Nashi projesine aittir; bu önizleme için ayrı bir güncelleme kaynağı yoktur.
 
 Kompakt arayüz için Ayarlar'dan **hap modunu** etkinleştir. Varsayılan kısayol **Ctrl+Alt+N**'dir ve ayarlardan değiştirilebilir. **Ctrl+O** dosya seçiciyi, **Ctrl+V** metin alanları dışında pano içeriğini, **Ctrl+Shift+D** kopyalanmış herkese açık medya bağlantısını açar.
 

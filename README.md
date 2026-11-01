@@ -5,7 +5,7 @@
 
 Nashi brings everyday file tasks into a small, keyboard-accessible Windows workspace. This repository contains a Windows-focused development of the open-source Nashi project, with a redesigned pill interface, a monochrome glass visual style and a new mascot.
 
-> **Development build:** the redesigned Windows version is under active development. Screens below are isolated WPF renders with synthetic data, not demonstrations of every interaction. A release of this version is not yet provided in this repository.
+> **Development build:** the redesigned Windows version is under active development. Screens below are isolated WPF renders with synthetic data, not demonstrations of every interaction. The downloadable package is an unsigned preview.
 
 ## The workspace
 
@@ -24,6 +24,12 @@ Nashi brings everyday file tasks into a small, keyboard-accessible Windows works
 
 The visualizer reflects the default Windows output device, not an isolated application's audio. Smart visibility considers the foreground window; Peek responds to media changes and Nashi's own notifications. Full-screen games, anti-cheat software and physical multi-monitor setups still need broader testing.
 
+## Download for Windows
+
+[Download the Windows x64 preview ZIP](https://github.com/Alp-a-max/nashi-app/releases/tag/windows-preview-1) · Extract the whole archive and run `Nashi.exe`. The release page includes a SHA-256 checksum.
+
+**Updates:** the built-in updater currently checks the original upstream Nashi release. Installing an offered update can replace this preview with the upstream app. Disable automatic checks in Settings → Updates and do not install an upstream update if you want to keep this version.
+
 ## Build and run
 
 Windows x64 and the **.NET 10 SDK** are required to build. From the repository root:
@@ -33,7 +39,7 @@ dotnet publish windows/Nashi.Windows -c Release -o build/windows/Nashi
 .\build\windows\Nashi\Nashi.exe
 ```
 
-The published build is self-contained. Keep its output files together. Some media and document features require optional tools installed through the app's setup flow. The existing update infrastructure belongs to upstream Nashi; this development branch does not claim an independently published update feed or release.
+The published build is self-contained. Keep its output files together. Some media and document features require optional tools installed through the app's setup flow. The existing update infrastructure belongs to upstream Nashi; this preview does not have an independent update feed.
 
 Enable **pill mode** in Settings to use the compact workspace. Its default shortcut is **Ctrl+Alt+N**; it can be changed in Settings. **Ctrl+O** opens file selection, **Ctrl+V** imports clipboard contents outside text fields, and **Ctrl+Shift+D** opens a copied public media link.
 
