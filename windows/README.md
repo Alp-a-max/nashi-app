@@ -1,17 +1,31 @@
 # Nashi for Windows
 
-Mac and Windows 0.7.5 are published with the shared 45-format / 27-tool catalog and aligned Home, Library, paste, preview and window-management workflows. See [the feature parity and verification matrix](FEATURE-PARITY.md) for implementation, evidence and platform differences.
+Nashi's Windows development build uses WPF and .NET 10. The current branch adds a compact monochrome pill workspace with file selection, searchable tools, web downloads, Windows media controls, history and customizable visibility. See the [project overview](../README.md) or [Türkçe tanıtım](../README.tr.md) for screenshots and limitations.
 
-Nashi uses WPF / .NET 10, the same pear artwork, file garden, rounded cards, gold actions and light/dark palette as macOS, with Windows keyboard conventions and native window controls. Build with `dotnet publish windows/Nashi.Windows -c Release -o build/windows/Nashi`. The output is self-contained; users do not install .NET separately. Keep the portable folder together in a writable location so updates can replace it safely.
+## Build
 
-The shared catalog contains 27 tools and 46 input formats. It includes photo editing, framing/collages, crop/annotation/redaction, QR/PDF tools, document/Pages/EPUB/spreadsheet/slides conversion, archives/subtitles, media tools and public web downloads. Runtime setup is available from Home. Download URLs and SHA-256 hashes are pinned in `Toolchain.cs`, `OfficeRuntime.cs` and `MetadataService.cs`; upstream licenses remain separate from Nashi's MIT license. See [third-party notices](THIRD-PARTY-NOTICES.txt).
+Install the .NET 10 SDK on Windows x64, then run from the repository root:
 
-Library and preferences live in `%LOCALAPPDATA%/Nashi`, outside the portable application folder. Library keeps the last 50 successful exports and clipboard imports. Text imports use UTF-8 and image imports use lossless PNG. No clipboard monitoring runs in the background. Signed public update staging verifies the manifest, archive hash, version and trusted signature before restart.
+```powershell
+dotnet publish windows/Nashi.Windows -c Release -o build/windows/Nashi
+.\build\windows\Nashi\Nashi.exe
+```
 
-While dragging in Explorer or another application, **Ctrl** opens tools, **Shift** conversion and **Alt** file actions. Settings can change the three chords. **Ctrl+Shift+D** opens a copied public media link. The app can remain in the system tray.
+The published folder is self-contained. Keep its files together. Some media, office and metadata features require additional tools; their versions, hashes and licenses are documented in [dependencies](../docs/dependencies.md). This branch does not provide its own published release or update feed; existing update code originates upstream.
 
-**Ctrl+O** chooses files; **Ctrl+V** imports files/text/images/links outside text fields; **Ctrl+1/2** switches Home/Library; **Ctrl+F** searches; **Ctrl+U** checks updates. **Ctrl+Space** opens the selected files' wheel; choose **Convert** to select an output format. Arrows/Tab choose an item, Enter opens it and Escape closes it. In the Home file list, **Delete** removes the selected entries from Nashi without deleting the original files.
+## Use
 
-Media editors use **Space** for play/pause, **Left/Right** for one-second seeking, **Shift+Left/Right** for frame steps, **I/O** for range marks and **Shift+Space** to play the selected range. Crop supports drag, Shift ratio lock, selection move/resize, aspect presets and Enter save. Annotation supports Select/Move, Delete and Ctrl+Z. Normal text-field editing is preserved.
+Enable pill mode in Settings. The default show/hide shortcut is **Ctrl+Alt+N**, configurable in Settings. Visibility options include shortcut, fixed, smart and peek. Position, monitor, hover and collapse delays are configurable. Smart mode uses the foreground window; Peek responds to media changes and Nashi notifications. Full-screen games, anti-cheat software and physical multi-monitor configurations need further testing.
 
-`Nashi.Verify` checks the shared engine and security foundation. `Nashi --smoke-test` runs real Windows keyboard, clipboard, OLE drag, Library, editor and export checks and writes diagnostic JSON/PNG artifacts. See [verification details](FEATURE-PARITY.md#commands-and-evidence) before interpreting a CI artifact as a completed test or official release.
+**Ctrl+O** opens the file picker. **Ctrl+V** imports files, text, images or links when a text field is not being edited. **Ctrl+Shift+D** opens a copied public media link. In the Home file list, Delete removes selected entries from Nashi without deleting the original files. Explorer drag modifiers and other shortcuts are configurable in Settings.
+
+Preferences and the library live in `%LOCALAPPDATA%\Nashi`. The media visualizer uses the default Windows output level and is active only when needed; it is not a per-application audio capture.
+
+## Verify
+
+```powershell
+dotnet build windows/Nashi.Windows -c Release
+dotnet run --project windows/Nashi.Verify -c Release
+```
+
+See the [isolated UI audit](../docs/testing/UI-AUDIT.md) and [feature parity notes](FEATURE-PARITY.md). Automated renders and synthetic checks do not replace real pointer, game or multi-monitor testing. Dependencies retain their own licenses; see [third-party notices](THIRD-PARTY-NOTICES.txt).

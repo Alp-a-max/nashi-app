@@ -1,61 +1,58 @@
-<p align="center"><img src="Resources/Brand/NashiIcon.png" width="128" alt="Nashi"></p>
-<h1 align="center">Nashi</h1>
-<p align="center">Your files, a little sweeter. · Dosyaların için tatlı bir kolaylık.</p>
+<p align="center"><img src="windows/Nashi.Windows/Assets/NashiMascot.png" width="132" alt="Nashi mascot"></p>
+<h1 align="center">Nashi for Windows</h1>
+<p align="center">A compact desktop workspace for files, tools and media.</p>
+<p align="center"><a href="README.tr.md">Türkçe</a> · <a href="windows/README.md">Windows guide</a> · <a href="LICENSE">MIT license</a></p>
 
-[English guide](https://orkunisitmak.github.io/nashi-app/) · [Türkçe](https://orkunisitmak.github.io/nashi-app/tr/) · [Latest release](https://github.com/orkunisitmak/nashi-app/releases/latest) · [Security](SECURITY.md)
+Nashi brings everyday file tasks into a small, keyboard-accessible Windows workspace. This repository contains a Windows-focused development of the open-source Nashi project, with a redesigned pill interface, a monochrome glass visual style and a new mascot.
 
-Nashi is an independent, open-source file conversion and editing app inspired by [Tangerine](https://tangerineformac.com/)'s drag-and-wheel interaction. It adds public web-media downloads, QR reading, refined crop/annotation workflows, keyboard media editing, live progress and signed automatic updates. Nashi is not affiliated with Tangerine or LEAP STUDIO and includes no proprietary reference-app binaries or artwork.
+> **Development build:** the redesigned Windows version is under active development. Screens below are isolated WPF renders with synthetic data, not demonstrations of every interaction. A release of this version is not yet provided in this repository.
 
-Try the [interactive browser playground](https://orkunisitmak.github.io/nashi-app/#playground): drag sample files, use the wheel and shortcuts, and explore all 27 tools. Supported image/PDF/audio exports are real; desktop-only operations are labeled previews.
+## The workspace
 
-## See Nashi in action
+![Nashi files view showing the file drop area and navigation](docs/assets/windows-pill/files.png)
 
-[![Nashi real screen recording: Finder drag, conversion wheel, crop and video trim](docs/assets/showcase/nashi-demo.gif?v=50e9219b2083)](https://orkunisitmak.github.io/nashi-app/#demo)
+- **Files and conversion:** add or paste files, choose a target format, or open the tool wheel. File operations are designed to keep source files intact unless the user explicitly selects a file action such as Move.
+- **Tools:** find image, PDF, media, archive and other tools in one searchable space. Availability depends on the input and installed runtime tools.
+- **Web downloads:** open the Download section to prepare a public media link. Availability depends on the site and installed tools.
+- **Media:** view the active Windows media session, control playback and see an output-level visualizer.
+- **Pill controls:** choose shortcut, fixed, smart or peek visibility; configure the position, monitor, delays and keyboard shortcut in Settings.
+- **Personal workspace:** history, notes, tasks and other modules are available from the dock or search.
 
-**[Watch the 95-second screen recording](https://orkunisitmak.github.io/nashi-app/#demo)** · **[Türkçe demo](https://orkunisitmak.github.io/nashi-app/tr/#demo)** · [MP4](https://orkunisitmak.github.io/nashi-app/assets/showcase/nashi-demo.mp4?v=50e9219b2083)
-
-A real macOS 0.7.3 screen recording: drag files in Finder, use the wheel to convert to JPG, crop an image and trim a video with In/Out handles. Pauses and longer previews are shortened; retained actions play at normal speed. English and Turkish captions are available in the video player.
-
-| macOS · Home | macOS · Crop image |
+| Tools | Media |
 | :---: | :---: |
-| [![Nashi Mac Home with file selection and quick actions](docs/assets/showcase/mac-home.png)](docs/assets/showcase/mac-home.png) | [![Nashi Mac crop editor with a square selection and aspect ratio controls](docs/assets/showcase/mac-crop.png)](docs/assets/showcase/mac-crop.png) |
-| **macOS · Video trim** | **Windows · 0.7.5** |
-| [![Nashi video trim editor with In and Out handles and a selected range](docs/assets/showcase/mac-trim.png)](docs/assets/showcase/mac-trim.png) | [![Nashi native Windows 0.7.5 Home in the dark theme](docs/assets/showcase/windows-home-preview.png)](docs/assets/showcase/windows-home-preview.png) |
+| ![Searchable Nashi tools](docs/assets/windows-pill/tools.png) | ![Nashi media controls with synthetic sample data](docs/assets/windows-pill/media.png) |
 
-Windows screenshot: native UI test capture from the released 0.7.5 code, verified in [PR #1](https://github.com/orkunisitmak/nashi-app/pull/1). Demo files contain Nashi's own artwork; no personal files or account details are shown.
+The visualizer reflects the default Windows output device, not an isolated application's audio. Smart visibility considers the foreground window; Peek responds to media changes and Nashi's own notifications. Full-screen games, anti-cheat software and physical multi-monitor setups still need broader testing.
 
-## Download and use
+## Build and run
 
-- **[macOS ZIP · Apple Silicon, macOS 13+](https://github.com/orkunisitmak/nashi-app/releases/latest/download/Nashi-macOS-arm64.zip):** extract, move Nashi.app to your Applications folder and open it. The full macOS catalog has 27 tools, 46 input formats and 276 conversion routes.
-- **[Windows x64 ZIP](https://github.com/orkunisitmak/nashi-app/releases/latest/download/Nashi-Windows-x64.zip):** extract the entire archive into its own writable folder, then open Nashi.exe. No separate .NET install is required. Keep the folder together so portable updates can replace the app safely. [Windows features and differences](windows/README.md).
+Windows x64 and the **.NET 10 SDK** are required to build. From the repository root:
 
-First launch guides you through **Finish setup → Download missing tools** for hash-verified downloads directly from upstream. Media and Office tools install in sequence; existing tools are kept, and cancelled or failed setup can be retried. **Tools ready** appears only when both groups are available. Core native image/PDF features work immediately. [Exact versions, hashes and licenses](docs/dependencies.md).
-
-These first public builds do not have Apple notarization or Windows Authenticode publisher signing. Your OS may require first-launch approval; consult [Apple's guidance](https://support.apple.com/en-us/102445). Nashi does not disable system security settings. Official release assets include SHA-256 checksums. A CI artifact alone is not an official signed update.
-
-## Shortcuts
-
-On macOS, hold **Shift** while dragging in Finder for conversion, **Command** for tools or **Control** for file actions. **Control–Shift–D** downloads a copied public link. Drag modifiers are customizable. On Windows, use **Ctrl+O** to choose files, **Ctrl+V** to import copied files/text/images, and **Ctrl+Space** for the tools and conversion wheel. **Ctrl+2** opens Library; **Ctrl+F** searches it. Normal paste inside text fields is preserved. Home and Library share the Mac color palette, rounded cards and gold actions, with System/Light/Dark appearance.
-
-Supported media editors use **Space** for play/pause, **Left/Right** to seek one second and **I/O** to mark a range. Crop uses drag, **Shift** for aspect lock and **Enter** to save. The [English](https://orkunisitmak.github.io/nashi-app/#shortcuts) and [Turkish](https://orkunisitmak.github.io/nashi-app/tr/#shortcuts) pages contain the complete macOS shortcut sheet; the [Windows guide](windows/README.md) lists its available controls.
-
-## Build
-
-For macOS: Apple Silicon, macOS 13+ and Xcode/Swift 6.
-
-```sh
-scripts/setup-exiftool.sh
-swift build --product Nashi
-swift test --filter NashiUpdatesTests
-scripts/build-app.sh release
+```powershell
+dotnet publish windows/Nashi.Windows -c Release -o build/windows/Nashi
+.\build\windows\Nashi\Nashi.exe
 ```
 
-The public app is written to `build/Nashi.app`. Large runtimes are installed through its setup screen. Source builds use an ad-hoc signature unless you provide your own ignored signing profile. Signing private keys are never distributed. [Windows build instructions](windows/README.md).
+The published build is self-contained. Keep its output files together. Some media and document features require optional tools installed through the app's setup flow. The existing update infrastructure belongs to upstream Nashi; this development branch does not claim an independently published update feed or release.
 
-## Privacy and updates
+Enable **pill mode** in Settings to use the compact workspace. Its default shortcut is **Ctrl+Alt+N**; it can be changed in Settings. **Ctrl+O** opens file selection, **Ctrl+V** imports clipboard contents outside text fields, and **Ctrl+Shift+D** opens a copied public media link.
 
-Conversion/editing run locally. Web downloads contact the selected media site. No analytics, cloud account or browser-cookie import is built in. Official releases update through this public repository without a GitHub account or token. macOS verifies the signed feed and archive; Windows verifies the archive signature and version before replacement. Active operations finish or cancel before the app exits for an update. Portable Windows updates retain the previous folder as a recoverable backup.
+## Project structure
 
-## License and acknowledgments
+- [`windows/Nashi.Windows`](windows/Nashi.Windows): WPF interface, pill window, media integration and Windows interactions.
+- [`windows/Nashi.Core`](windows/Nashi.Core): file operations, preferences and shared Windows-side logic.
+- [`windows/Nashi.Verify`](windows/Nashi.Verify): engine and safety checks.
+- [`Sources`](Sources): the upstream macOS application and shared Swift components.
 
-Nashi's original source is [MIT](LICENSE). Vendored libraries and external tools retain their own licenses; see [macOS notices](Resources/THIRD-PARTY-NOTICES.txt), [Windows notices](windows/THIRD-PARTY-NOTICES.txt) and [runtime setup](docs/dependencies.md). No purchase flow or reference-app account is required.
+## Verification and limitations
+
+```powershell
+dotnet build windows/Nashi.Windows -c Release
+dotnet run --project windows/Nashi.Verify -c Release
+```
+
+At commit `7fc6c1b`, the Windows Release build passed, the engine verification reported 1,397 passing checks, and isolated native checks covered settings reload, window behavior and file-control hit testing. These checks do not establish that every button, real mouse gesture or game scenario works. See [UI audit methodology](docs/testing/UI-AUDIT.md).
+
+## Origins and license
+
+This project is built on [orkunisitmak/nashi-app](https://github.com/orkunisitmak/nashi-app) and retains the original authors' [MIT license](LICENSE). The Windows pill redesign, customization and mascot presentation are the focus of this development branch. Visibility and interaction ideas were informed by [Nectar](https://github.com/kua8/Nectar); its GPL-3.0 code and assets were not copied. Third-party dependencies retain their own licenses; see [Windows notices](windows/THIRD-PARTY-NOTICES.txt) and [runtime dependencies](docs/dependencies.md).
