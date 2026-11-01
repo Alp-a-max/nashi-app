@@ -1,6 +1,6 @@
 <p align="center"><img src="windows/Nashi.Windows/Assets/NashiMascot.png" width="132" alt="Nashi mascot"></p>
 <h1 align="center">Nashi for Windows</h1>
-<p align="center"><a href="https://github.com/Alp-a-max/nashi-app/releases/download/v1.0-preview/Nashi-Windows-x64-preview.zip"><b>⬇ Download for Windows / Windows için indir</b></a></p>
+<p align="center"><a href="https://github.com/Alp-a-max/nashi-app/releases/download/v1.0-preview/Nashi-Setup-Windows-x64.exe"><b>⬇ Download for Windows / Windows için indir</b></a></p>
 <p align="center">A compact desktop workspace for files, tools and media.</p>
 <p align="center"><a href="README.tr.md">Türkçe</a> · <a href="windows/README.md">Windows guide</a> · <a href="LICENSE">MIT license</a></p>
 
@@ -27,7 +27,7 @@ The visualizer reflects the default Windows output device, not an isolated appli
 
 ## Download for Windows
 
-[Download the Windows x64 preview ZIP](https://github.com/Alp-a-max/nashi-app/releases/tag/v1.0-preview) · Extract the whole archive and run `Nashi.exe`. The release page includes a SHA-256 checksum.
+[Download Nashi Setup for Windows x64](https://github.com/Alp-a-max/nashi-app/releases/download/v1.0-preview/Nashi-Setup-Windows-x64.exe) · Open the downloaded installer and follow its steps. No separate .NET installation is needed. The unsigned preview can trigger a Windows security warning. A portable ZIP remains available on the [release page](https://github.com/Alp-a-max/nashi-app/releases/tag/v1.0-preview).
 
 **Updates:** the built-in updater currently checks the original upstream Nashi release. Installing an offered update can replace this preview with the upstream app. Disable automatic checks in Settings → Updates and do not install an upstream update if you want to keep this version.
 
