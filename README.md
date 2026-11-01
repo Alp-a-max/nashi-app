@@ -1,5 +1,6 @@
 <p align="center"><img src="windows/Nashi.Windows/Assets/NashiMascot.png" width="132" alt="Nashi mascot"></p>
 <h1 align="center">Nashi for Windows</h1>
+<p align="center"><a href="https://github.com/Alp-a-max/nashi-app/releases/download/windows-preview-1/Nashi-Windows-x64-preview.zip"><b>⬇ Download for Windows / Windows için indir</b></a></p>
 <p align="center">A compact desktop workspace for files, tools and media.</p>
 <p align="center"><a href="README.tr.md">Türkçe</a> · <a href="windows/README.md">Windows guide</a> · <a href="LICENSE">MIT license</a></p>
 
