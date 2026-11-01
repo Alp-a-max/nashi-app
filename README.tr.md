@@ -26,7 +26,7 @@ Görselleştirici tek bir uygulamanın sesini değil, varsayılan Windows çık�
 
 ## Windows için indir
 
-[Windows x64 önizleme ZIP dosyasını indir](https://github.com/Alp-a-max/nashi-app/releases/tag/windows-preview-1) · Arşivin tamamını bir klasöre çıkar ve `Nashi.exe` dosyasını aç. Sürüm sayfasında SHA-256 doğrulama özeti bulunur.
+[Windows x64 önizleme ZIP dosyasını indir](https://github.com/Alp-a-max/nashi-app/releases/tag/v1.0-preview) · Arşivin tamamını bir klasöre çıkar ve `Nashi.exe` dosyasını aç. Sürüm sayfasında SHA-256 doğrulama özeti bulunur.
 
 **Güncellemeler:** Uygulamanın mevcut güncelleme denetimi kaynak Nashi deposunu kontrol eder. Teklif edilen güncellemeyi kurmak bu önizlemeyi kaynak sürümle değiştirebilir. Bu sürümü korumak için Ayarlar → Güncellemeler bölümünde otomatik denetimi kapat ve kaynak güncellemeyi kurma.
 
